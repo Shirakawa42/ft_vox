@@ -62,7 +62,8 @@ void	Window::init()
 			GL_VERTEX_SHADER), s.create_shader((char*)"shaders/fragment.glsl",
 			GL_FRAGMENT_SHADER));
 	MatrixID = glGetUniformLocation(programID, "MVP");
-	textureID = glGetUniformLocation(programID, "textureSampler");
+	grassID = glGetUniformLocation(programID, "grass");
+	stoneID = glGetUniformLocation(programID, "stone");
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
@@ -75,6 +76,8 @@ void	Window::loop()
 	grass = texture.load_bmp((char*)"texture/grass.bmp");
 	stone = texture.load_bmp((char*)"texture/stone.bmp");
 
+	glfwSwapInterval(0);
+	glEnable(GL_CULL_FACE); 
 	while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 	{
 		handleTime();
@@ -82,25 +85,39 @@ void	Window::loop()
 		chunkHandler.FlatMapHandler();
 		chunkHandler.player.mouseControl(window);
 
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(programID);
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &chunkHandler.player.mvp[0][0]);
-		
+
+		glUniform1i(grassID, 0);
+		glUniform1i(stoneID, 1);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, grass);
-		glUniform1i(textureID, 0);
-		
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, stone);
+
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->vboID);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->translationsID);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+		glVertexAttribDivisor(1, 1);
+
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->cubeID);
+		glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
+		glVertexAttribDivisor(2, 1);
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->iboID);
-		glDrawElements(GL_TRIANGLES, chunkHandler.loaded_chunks[0]->nbIndices, GL_UNSIGNED_INT, NULL);
+		glDrawElementsInstanced(GL_TRIANGLES, chunkHandler.loaded_chunks[0]->nbIndices, GL_UNSIGNED_INT, NULL, chunkHandler.loaded_chunks[0]->nbInstances);
 		
 		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();

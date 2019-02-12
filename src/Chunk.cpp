@@ -5,15 +5,27 @@ Chunk::Chunk()
 {
 	glGenBuffers(1, &vboID);
 	glGenBuffers(1, &iboID);
-	nbVertices = 0;
-	nbIndices = 0;
-	nbUv = 0;
+	glGenBuffers(1, &translationsID);
+	glGenBuffers(1, &cubeID);
+	nbVertices = 8;
+	nbIndices = 12*3;
+	nbInstances = 0;
+	vertices = (float*)malloc(sizeof(float) * nbVertices * 3);
+	indices = (unsigned int*)malloc(sizeof(unsigned int) * nbIndices);
+	translations = (GLfloat*)malloc(sizeof(GLfloat) * CHUNK_SIZE * 3);
+	cubes = (GLuint*)malloc(sizeof(GLuint) * CHUNK_SIZE);
 }
 
 Chunk::~Chunk()
 {
 	free(vertices);
+	free(indices);
+	free(translations);
+	free(cubes);
 	glDeleteBuffers(1, &vboID);
+	glDeleteBuffers(1, &iboID);
+	glDeleteBuffers(1, &translationsID);
+	glDeleteBuffers(1, &cubeID);
 }
 
 void	Chunk::setFlat()
@@ -21,7 +33,9 @@ void	Chunk::setFlat()
 	int		x;
 	int		y;
 	int		z;
+	int		nb;
 
+	nb = 0;
 	z = 0;
 	while (z < CHUNK_Z)
 	{
@@ -31,8 +45,19 @@ void	Chunk::setFlat()
 			x = 0;
 			while (x < CHUNK_XY)
 			{
-				if (z < 1 && x < 1 && y < 1)
-					chunk[x][y][z] = 1;
+				if (z < 5)
+				{
+					if (z == 4)
+						chunk[x][y][z] = 1;
+					else
+						chunk[x][y][z] = 2;
+					translations[nb] = x;
+					translations[nb + 2] = y;
+					translations[nb + 1] = z;
+					cubes[nbInstances] = chunk[x][y][z];
+					nbInstances++;
+					nb += 3;
+				}
 				else
 					chunk[x][y][z] = 0;
 				x++;
@@ -41,7 +66,23 @@ void	Chunk::setFlat()
 		}
 		z++;
 	}
+	setTranslationsO(nb);
+	setCubeO(nbInstances);
 	calcVertices();
+}
+
+void	Chunk::setTranslationsO(int nb)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, translationsID);
+	glBufferData(GL_ARRAY_BUFFER, nb * sizeof(GLfloat), translations, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void	Chunk::setCubeO(int nb)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, cubeID);
+	glBufferData(GL_ARRAY_BUFFER, nb * sizeof(GLuint), cubes, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void	Chunk::setVBO()
@@ -58,31 +99,31 @@ void	Chunk::setIBO()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void	Chunk::addCubeVertices(int x, int y, int z, int nb)
+void	Chunk::addCubeVertices()
 {
 	float	cube[] = {
-    	-0.5f + x + this->x, -0.5f + z,  0.5f + y + this->y,
-		 0.5f + x + this->x, -0.5f + z,  0.5f + y + this->y,
-		 0.5f + x + this->x,  0.5f + z,  0.5f + y + this->y,
-		-0.5f + x + this->x,  0.5f + z,  0.5f + y + this->y,
-		-0.5f + x + this->x, -0.5f + z, -0.5f + y + this->y,
-		 0.5f + x + this->x, -0.5f + z, -0.5f + y + this->y,
-		 0.5f + x + this->x,  0.5f + z, -0.5f + y + this->y,
-		-0.5f + x + this->x,  0.5f + z, -0.5f + y + this->y
+    	-0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f
 	};
 	int		i;
 
 	i = 0;
 	while (i < 8 * 3)
 	{
-		vertices[(nb * 3 * 8) + i] = cube[i];
-		vertices[(nb * 3 * 8) + i + 1] = cube[i + 1];
-		vertices[(nb * 3 * 8) + i + 2] = cube[i + 2];
+		vertices[i] = cube[i];
+		vertices[i + 1] = cube[i + 1];
+		vertices[i + 2] = cube[i + 2];
 		i += 3;
 	}
 }
 
-void	Chunk::addIndices(int nb)
+void	Chunk::addIndices()
 {
 	unsigned int	indices[] = {
 		0, 1, 2,
@@ -103,75 +144,17 @@ void	Chunk::addIndices(int nb)
 	i = 0;
 	while (i < 12 * 3)
 	{
-		indices[i] += 8 * nb;
-		indices[i + 1] += 8 * nb;
-		indices[i + 2] += 8 * nb;
-		this->indices[(nb * 3 * 12) + i] = indices[i];
-		this->indices[(nb * 3 * 12) + i + 1] = indices[i + 1];
-		this->indices[(nb * 3 * 12) + i + 2] = indices[i + 2];
+		this->indices[i] = indices[i];
+		this->indices[i + 1] = indices[i + 1];
+		this->indices[i + 2] = indices[i + 2];
 		i += 3;
 	}
 }
 
-void	Chunk::addUv(int nb)
-{
-
-}
-
 void	Chunk::calcVertices()
 {
-	int		x;
-	int		y;
-	int		z;
-	int		nb;
-
-	x = 0;
-	while (x < CHUNK_XY)
-	{
-		y = 0;
-		while (y < CHUNK_XY)
-		{
-			z = 0;
-			while (z < CHUNK_Z)
-			{
-				if (chunk[x][y][z] == 1)
-				{
-					nbVertices += 8;
-					nbIndices += 12 * 3;
-					nbUv += 8;
-				}
-				z++;
-			}
-			y++;
-		}
-		x++;
-	}
-	vertices = (float*)malloc(sizeof(float) * nbVertices * 3);
-	indices = (unsigned int*)malloc(sizeof(unsigned int) * nbIndices);
-	uv = (float*)malloc(sizeof(float) * nbUv);
-	x = 0;
-	nb = 0;
-	while (x < CHUNK_XY)
-	{
-		y = 0;
-		while (y < CHUNK_XY)
-		{
-			z = 0;
-			while (z < CHUNK_Z)
-			{
-				if (chunk[x][y][z] == 1)
-				{
-					addCubeVertices(x, y, z, nb);
-					addIndices(nb);
-					addUv(nb);
-					nb++;
-				}
-				z++;
-			}
-			y++;
-		}
-		x++;
-	}
+	addCubeVertices();
+	addIndices();
 	setVBO();
 	setIBO();
 }

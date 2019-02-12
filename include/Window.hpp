@@ -24,6 +24,7 @@ class Window
 		GLuint			programID;
 		shaders			s;
 		Texture			texture;
-		GLuint			textureID;
 		GLuint			MatrixID;
+		GLuint			grassID;
+		GLuint			stoneID;
 };

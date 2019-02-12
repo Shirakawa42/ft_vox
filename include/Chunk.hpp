@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cstdlib>
+#include "Maths.hpp"
 
 # define CHUNK_XY 64
 # define CHUNK_Z 256
@@ -22,15 +23,18 @@ class Chunk
 		int				nbVertices;
 		unsigned int	*indices;
 		int				nbIndices;
-		float			*uv;
-		int				nbUv;
-
+		int				nbInstances;
+		GLfloat			*translations;
+		GLuint			translationsID;
+		GLuint			cubeID;
+		GLuint			*cubes;
 	private:
 		int		chunk[CHUNK_XY][CHUNK_XY][CHUNK_Z];
 		void	calcVertices();
 		void	setVBO();
 		void	setIBO();
-		void	addCubeVertices(int x, int y, int z, int nb);
-		void	addIndices(int nb);
-		void	addUv(int nb);
+		void	addCubeVertices();
+		void	addIndices();
+		void	setTranslationsO(int nb);
+		void	setCubeO(int nb);
 };

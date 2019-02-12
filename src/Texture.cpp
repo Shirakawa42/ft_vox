@@ -14,6 +14,12 @@ GLuint	Texture::load_bmp(char *filename)
 {
 	int				fd;
 	GLuint			texture_id;
+	unsigned char	header[54];
+	unsigned int	datapos;
+	unsigned int	width;
+	unsigned int	height;
+	unsigned int	image_size;
+	unsigned char	*data;
 
 	if ((fd = open(filename, O_RDONLY)) == -1)
 	{

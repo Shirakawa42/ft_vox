@@ -4,8 +4,14 @@ in vec3 textureDir;
 
 out vec3 color;
 
-uniform samplerCube textureSampler;
+flat in uint texturess;
+
+uniform samplerCube grass;
+uniform samplerCube stone;
 
 void main(){
-  color = texture(textureSampler, textureDir).rgb;
+	if (texturess == 1)
+  		color = texture(grass, textureDir).rgb;
+  	else if (texturess == 2)
+  		color = texture(stone, textureDir).rgb;
 }

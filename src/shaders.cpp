@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "shaders.hpp"
+#include <vector>
 
 shaders::shaders()
 {
@@ -107,6 +108,7 @@ GLuint		shaders::create_program(GLuint vertex, GLuint fragment)
 {
 	GLuint		program_id;
 	GLint		success;
+	int			maxLength;
 
 	success = 0;
 	program_id = glCreateProgram();
@@ -116,7 +118,10 @@ GLuint		shaders::create_program(GLuint vertex, GLuint fragment)
 	glGetProgramiv(program_id, GL_LINK_STATUS, &success);
 	if (success == GL_FALSE)
 	{
-		std::cout << "Failed to link program" << std::endl;
+		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> errorlog(maxLength);
+		glGetProgramInfoLog(program_id, maxLength, &maxLength, &errorlog[0]);
+		std::cout << "Failed to link program: " << &errorlog[0] << std::endl;
 		exit(0);
 	}
 	glDetachShader(program_id, vertex);

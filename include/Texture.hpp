@@ -13,13 +13,5 @@ class Texture
 	public:
 		Texture();
 		~Texture();	
-		GLuint		grass;
 		GLuint		load_bmp(char *filename);
-	private:
-		unsigned char	header[54];
-		unsigned int	datapos;
-		unsigned int	width;
-		unsigned int	height;
-		unsigned int	image_size;
-		unsigned char	*data;
 };
