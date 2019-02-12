@@ -72,6 +72,7 @@ void	Window::loop()
 {
 	GLuint	grass;
 	GLuint	stone;
+	int 	i;
 
 	grass = texture.load_bmp((char*)"texture/grass.bmp");
 	stone = texture.load_bmp((char*)"texture/stone.bmp");
@@ -96,25 +97,33 @@ void	Window::loop()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, stone);
 
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->vboID);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		i = 0;
+		while (i < MAX_LOADED_CHUNKS)
+		{
+			if (chunkHandler.loaded_chunks[i] != NULL)
+			{
+				glEnableVertexAttribArray(0);
+				glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->vboID);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->translationsID);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-		glVertexAttribDivisor(1, 1);
+				glEnableVertexAttribArray(1);
+				glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->translationsID);
+				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+				glVertexAttribDivisor(1, 1);
 
-		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->cubeID);
-		glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
-		glVertexAttribDivisor(2, 1);
+				glEnableVertexAttribArray(2);
+				glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->cubeID);
+				glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
+				glVertexAttribDivisor(2, 1);
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunkHandler.loaded_chunks[0]->iboID);
-		glDrawElementsInstanced(GL_TRIANGLES, chunkHandler.loaded_chunks[0]->nbIndices, GL_UNSIGNED_INT, NULL, chunkHandler.loaded_chunks[0]->nbInstances);
-		
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->iboID);
+				glDrawElementsInstanced(GL_TRIANGLES, chunkHandler.loaded_chunks[i]->nbIndices, GL_UNSIGNED_INT, NULL, chunkHandler.loaded_chunks[i]->nbInstances);
+			}
+			i++;
+		}
+
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);

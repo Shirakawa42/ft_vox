@@ -51,8 +51,8 @@ void	Chunk::setFlat()
 						chunk[x][y][z] = 1;
 					else
 						chunk[x][y][z] = 2;
-					translations[nb] = x;
-					translations[nb + 2] = y;
+					translations[nb] = x + this->x;
+					translations[nb + 2] = y + this->y;
 					translations[nb + 1] = z;
 					cubes[nbInstances] = chunk[x][y][z];
 					nbInstances++;

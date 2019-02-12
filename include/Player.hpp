@@ -1,7 +1,7 @@
 #pragma once
 
 # define FOV 45.0f
-# define VIEW_DISTANCE 200.0f
+# define VIEW_DISTANCE 64.0f
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

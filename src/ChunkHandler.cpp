@@ -4,6 +4,7 @@ ChunkHandler::ChunkHandler()
 {
 	int i;
 
+	nbLoadedChunks = 0;
 	loaded_chunks = (Chunk**)malloc(sizeof(Chunk*) * MAX_LOADED_CHUNKS);
 	i = 0;
 	while (i < MAX_LOADED_CHUNKS)
@@ -70,6 +71,8 @@ void	ChunkHandler::GenerateFlatChunks()
 					if (loaded_chunks[k] == NULL)
 					{
 						loaded_chunks[k] = CreateFlatChunk(x, y);
+						nbLoadedChunks++;
+						std::cout << "Chunk generated ! Nb loaded chunks: " << nbLoadedChunks << std::endl;
 						break ;
 					}
 					k++;
@@ -98,7 +101,5 @@ void	ChunkHandler::FlatMapHandler()
 	//	}
 	//	i++;
 	//}
-	//GenerateFlatChunks();
-	if (loaded_chunks[0] == NULL)
-		loaded_chunks[0] = CreateFlatChunk(0, 0);
+	GenerateFlatChunks();
 }

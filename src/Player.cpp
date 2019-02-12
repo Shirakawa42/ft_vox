@@ -58,6 +58,9 @@ void	Player::mouseControl(GLFWwindow *window)
 	View = glm::lookAt(position, position+direction, up);
 	mvp = Projection * View * Model;
 	glfwSetCursorPos(window, 1000/2, 1000/2);
+	pos.x = position.x;
+	pos.y = position.y;
+	pos.z = position.z;
 }
 
 t_vec3	Player::GetPos()

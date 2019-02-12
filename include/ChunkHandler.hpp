@@ -1,6 +1,6 @@
 #pragma once
 
-# define MAX_LOADED_CHUNKS 100
+# define MAX_LOADED_CHUNKS 200
 
 #include "Chunk.hpp"
 #include <vector>
@@ -20,4 +20,5 @@ class ChunkHandler
 		Chunk	*CreateFlatChunk(int x, int y);
 		void	GenerateFlatChunks();
 		bool	CheckIfChunkAtPos(int x, int y);
+		int		nbLoadedChunks;
 };
