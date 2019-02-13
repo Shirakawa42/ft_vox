@@ -27,5 +27,4 @@ class Player
 		float			initialFoV;
 		float			speed;
 		float			mouseSpeed;
-
 };

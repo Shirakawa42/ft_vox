@@ -4,6 +4,7 @@
 int		main(void)
 {
 	Window			window;
+	MapGeneration	map;
 
 	try
 	{

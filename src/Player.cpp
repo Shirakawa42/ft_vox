@@ -55,6 +55,10 @@ void	Player::mouseControl(GLFWwindow *window)
 	    position += right * deltaTime * speed;
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	    position -= right * deltaTime * speed;
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	    position.y += deltaTime * speed;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	    position.y -= deltaTime * speed;
 	View = glm::lookAt(position, position+direction, up);
 	mvp = Projection * View * Model;
 	glfwSetCursorPos(window, 1000/2, 1000/2);

@@ -9,6 +9,7 @@ ChunkHandler::ChunkHandler()
 	i = 0;
 	while (i < MAX_LOADED_CHUNKS)
 		loaded_chunks[i++] = NULL;
+	mapgen = new MapGeneration();
 }
 
 ChunkHandler::~ChunkHandler()
@@ -22,7 +23,8 @@ Chunk	*ChunkHandler::CreateFlatChunk(int x, int y)
 	
 	chunk->x = x;
 	chunk->y = y;
-	chunk->setFlat();
+	chunk->mapgen = &mapgen;
+	chunk->generate();
 	return chunk;
 }
 
@@ -31,7 +33,7 @@ bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
 	int		i;
 
 	i = 0;
-	while (i < MAX_LOADED_CHUNKS)
+	while (i < nbLoadedChunks)
 	{
 		if (loaded_chunks[i] != NULL)
 			if (loaded_chunks[i]->x == x && loaded_chunks[i]->y == y)
@@ -52,17 +54,17 @@ void	ChunkHandler::GenerateFlatChunks()
 	i = VIEW_DISTANCE + player.GetPos().x;
 	while (i > -VIEW_DISTANCE - CHUNK_XY + player.GetPos().x)
 	{
-		j = VIEW_DISTANCE + player.GetPos().y;
-		while (j > -VIEW_DISTANCE - CHUNK_XY + player.GetPos().y)
+		j = VIEW_DISTANCE + player.GetPos().z;
+		while (j > -VIEW_DISTANCE - CHUNK_XY + player.GetPos().z)
 		{
 			if (i < 0)
-				x = -(-i - (-i % CHUNK_XY) - 32);
+				x = -(-i - (-i % CHUNK_XY) - CHUNK_XY/2);
 			else
-				x = i - (i % CHUNK_XY) - 32;
+				x = i - (i % CHUNK_XY) - CHUNK_XY/2;
 			if (j < 0)
-				y = -(-j - (-j % CHUNK_XY) - 32);
+				y = -(-j - (-j % CHUNK_XY) - CHUNK_XY/2);
 			else
-				y = j - (j % CHUNK_XY) - 32;
+				y = j - (j % CHUNK_XY) - CHUNK_XY/2;
 			if (CheckIfChunkAtPos(x, y) == false)
 			{
 				k = 0;

@@ -98,7 +98,7 @@ void	Window::loop()
 		glBindTexture(GL_TEXTURE_CUBE_MAP, stone);
 
 		i = 0;
-		while (i < MAX_LOADED_CHUNKS)
+		while (i < chunkHandler.nbLoadedChunks)
 		{
 			if (chunkHandler.loaded_chunks[i] != NULL)
 			{

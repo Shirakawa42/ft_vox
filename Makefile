@@ -23,7 +23,7 @@ INC_PATH = ./include/
 GCC_FLGS = #-Wall -Wextra -Werror
 GCC_LIBS = -lglfw -lGLEW -lGL -lGLU -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor -lm
 
-SRC_NAME = main.cpp ChunkHandler.cpp Chunk.cpp Maths.cpp Player.cpp Window.cpp shaders.cpp Texture.cpp
+SRC_NAME = main.cpp ChunkHandler.cpp Chunk.cpp Maths.cpp Player.cpp Window.cpp shaders.cpp Texture.cpp MapGeneration.cpp
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 LIB_NAME =
 

@@ -28,43 +28,47 @@ Chunk::~Chunk()
 	glDeleteBuffers(1, &cubeID);
 }
 
-void	Chunk::setFlat()
+void	Chunk::generate()
 {
 	int		x;
 	int		y;
 	int		z;
+	int		power;
 	int		nb;
+	float	p;
 
 	nb = 0;
-	z = 0;
-	while (z < CHUNK_Z)
+	x = 0;
+	while (x < CHUNK_XY)
 	{
 		y = 0;
 		while (y < CHUNK_XY)
 		{
-			x = 0;
-			while (x < CHUNK_XY)
+			p = (*mapgen)->noise((float)(x + this->x) / 20.0f + 0.5f, (float)(y + this->y) / 20.0f + 0.5f, 0.0f);
+			power = (int)(10.0f * p) + 10;
+			z = 0;
+			while (z < power)
 			{
-				if (z < 5)
-				{
-					if (z == 4)
-						chunk[x][y][z] = 1;
-					else
-						chunk[x][y][z] = 2;
-					translations[nb] = x + this->x;
-					translations[nb + 2] = y + this->y;
-					translations[nb + 1] = z;
-					cubes[nbInstances] = chunk[x][y][z];
-					nbInstances++;
-					nb += 3;
-				}
+				if (z != power - 1)
+					chunk[x][y][z] = 2;
 				else
-					chunk[x][y][z] = 0;
-				x++;
+					chunk[x][y][z] = 1;
+				translations[nb] = x + this->x;
+				translations[nb + 2] = y + this->y;
+				translations[nb + 1] = z;
+				cubes[nbInstances] = chunk[x][y][z];
+				nbInstances++;
+				nb += 3;
+				z++;
+			}
+			while (z < CHUNK_Z)
+			{
+				chunk[x][y][z] = 0;
+				z++;
 			}
 			y++;
 		}
-		z++;
+		x++;
 	}
 	setTranslationsO(nb);
 	setCubeO(nbInstances);
