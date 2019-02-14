@@ -21,9 +21,7 @@ class Chunk
 		GLuint			vboID;
 		GLuint			iboID;
 		float			*vertices;
-		int				nbVertices;
 		unsigned int	*indices;
-		int				nbIndices;
 		int				nbInstances;
 		GLfloat			*translations;
 		GLuint			translationsID;

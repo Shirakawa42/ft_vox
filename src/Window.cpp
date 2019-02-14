@@ -140,7 +140,7 @@ void	Window::loop()
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tmp->chunk->iboID);
-				glDrawElementsInstanced(GL_TRIANGLES, tmp->chunk->nbIndices, GL_UNSIGNED_INT, NULL, tmp->chunk->nbInstances);
+				glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, tmp->chunk->nbInstances);
 			}
 			tmp = tmp->next;
 		}

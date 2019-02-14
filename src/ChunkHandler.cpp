@@ -66,6 +66,7 @@ void	ChunkHandler::AddChunkToEnabledList(int x, int y)
 		tmp->next = NULL;
 	}
 	tmp->chunk = GenerateChunk(x, y);
+	lastGeneratedChunk = tmp->chunk;
 	nbEnabledChunks++;
 }
 
@@ -93,7 +94,7 @@ void	ChunkHandler::GenerateChunks()
 			if (CheckIfChunkAtPos(x, y) == false)
 			{
 				AddChunkToEnabledList(x, y);
-				std::cout << "Chunk generated ! Nb enabled chunks: " << nbEnabledChunks << std::endl;
+				std::cout << "Chunk generated ! Nb enabled chunks: " << nbEnabledChunks << " with " << lastGeneratedChunk->nbInstances << " cubes." << std::endl;
 			}
 			j -= CHUNK_XY;
 		}

@@ -7,11 +7,9 @@ Chunk::Chunk()
 	glGenBuffers(1, &iboID);
 	glGenBuffers(1, &translationsID);
 	glGenBuffers(1, &cubeID);
-	nbVertices = 8;
-	nbIndices = 12*3;
 	nbInstances = 0;
-	vertices = (float*)malloc(sizeof(float) * nbVertices * 3);
-	indices = (unsigned int*)malloc(sizeof(unsigned int) * nbIndices);
+	vertices = (float*)malloc(sizeof(float) * 8 * 3);
+	indices = (unsigned int*)malloc(sizeof(unsigned int) * 12 * 3);
 	translations = (GLfloat*)malloc(sizeof(GLfloat) * CHUNK_SIZE * 3);
 	cubes = (GLuint*)malloc(sizeof(GLuint) * CHUNK_SIZE);
 	enabled = true;
@@ -76,7 +74,7 @@ void	Chunk::generate()
 			{
 				if (chunk[x][y][z] > 0)
 				{
-					if (chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0 && x % CHUNK_XY != 0 && y % CHUNK_XY != 0 && z % CHUNK_Z != 0)
+					if (chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0 && (y % CHUNK_XY != 0 && x % CHUNK_XY != 0 && z % CHUNK_Z != 0))
 						chunkActive[x][y][z] = false;
 					else
 					{
@@ -117,14 +115,14 @@ void	Chunk::setCubeO(int nb)
 void	Chunk::setVBO()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData(GL_ARRAY_BUFFER, nbVertices * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 8 * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void	Chunk::setIBO()
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, nbIndices * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12 * 3 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

@@ -35,4 +35,5 @@ class ChunkHandler
 		bool			CheckIfChunkAtPos(int x, int y);
 		bool			isChunkVisible(Chunk *chunk);
 		void			AddChunkToEnabledList(int x, int y);
+		Chunk			*lastGeneratedChunk;
 };
