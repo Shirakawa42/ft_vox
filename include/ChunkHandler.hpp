@@ -1,6 +1,6 @@
 #pragma once
 
-# define MAX_LOADED_CHUNKS 20000
+# define MAX_LOADED_CHUNKS 200000
 
 #include "Chunk.hpp"
 #include <vector>
@@ -9,19 +9,30 @@
 #include "Maths.hpp"
 #include "MapGeneration.hpp"
 
+typedef struct	s_ChunkList
+{
+	Chunk				*chunk;
+	struct s_ChunkList	*next;
+	struct s_ChunkList	*prev;
+}				t_ChunkList;
 
 class ChunkHandler
 {
 	public:
 		ChunkHandler();
 		~ChunkHandler();
-		void	FlatMapHandler();
-		Chunk	**loaded_chunks;
-		Player	player;
-		int		nbLoadedChunks;
+		void			MapHandler();
+		void			disableNonVisible();
+		Player			player;
+		int				nbEnabledChunks;
+		int				nbDisabledChunks;
+		t_ChunkList		*enabledChunks;
+		t_ChunkList		*disabledChunks;
 	private:
 		MapGeneration	*mapgen;
-		Chunk			*CreateFlatChunk(int x, int y);
-		void			GenerateFlatChunks();
+		Chunk			*GenerateChunk(int x, int y);
+		void			GenerateChunks();
 		bool			CheckIfChunkAtPos(int x, int y);
+		bool			isChunkVisible(Chunk *chunk);
+		void			AddChunkToEnabledList(int x, int y);
 };

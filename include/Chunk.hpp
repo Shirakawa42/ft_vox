@@ -6,7 +6,7 @@
 #include "Maths.hpp"
 #include "MapGeneration.hpp"
 
-# define CHUNK_XY 32
+# define CHUNK_XY 64
 # define CHUNK_Z 256
 # define CHUNK_SIZE CHUNK_XY*CHUNK_XY*CHUNK_Z
 
@@ -30,13 +30,15 @@ class Chunk
 		GLuint			cubeID;
 		GLuint			*cubes;
 		MapGeneration	**mapgen;
+		bool			enabled;
 	private:
-		int		chunk[CHUNK_XY][CHUNK_XY][CHUNK_Z];
-		void	calcVertices();
-		void	setVBO();
-		void	setIBO();
-		void	addCubeVertices();
-		void	addIndices();
-		void	setTranslationsO(int nb);
-		void	setCubeO(int nb);
+		int			chunk[CHUNK_XY][CHUNK_XY][CHUNK_Z];
+		bool		chunkActive[CHUNK_XY][CHUNK_XY][CHUNK_Z];
+		void		calcVertices();
+		void		setVBO();
+		void		setIBO();
+		void		addCubeVertices();
+		void		addIndices();
+		void		setTranslationsO(int nb);
+		void		setCubeO(int nb);
 };

@@ -54,6 +54,7 @@ void	Window::init()
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	glEnable(GL_MULTISAMPLE);
 
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
@@ -66,25 +67,41 @@ void	Window::init()
 	stoneID = glGetUniformLocation(programID, "stone");
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
+	const GLubyte* vendor = glGetString(GL_VENDOR);
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	std::cout << vendor << " ||| " << renderer << std::endl;
 }
 
 void	Window::loop()
 {
 	GLuint	grass;
 	GLuint	stone;
-	int 	i;
+	t_ChunkList	*tmp;
 
 	grass = texture.load_bmp((char*)"texture/grass.bmp");
 	stone = texture.load_bmp((char*)"texture/stone.bmp");
 
 	glfwSwapInterval(0);
 	glEnable(GL_CULL_FACE); 
+
+	float	tmp_time;
+	float	duration[3];
+	float	total;
+	duration[0] = 0;
+	duration[1] = 0;
+	duration[2] = 0;
+	total = 0;
+
 	while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 	{
+		tmp_time = glfwGetTime();
 		handleTime();
 		chunkHandler.player.deltaTime = deltaTime;
-		chunkHandler.FlatMapHandler();
+		chunkHandler.MapHandler();
 		chunkHandler.player.mouseControl(window);
+		chunkHandler.disableNonVisible();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(programID);
@@ -97,32 +114,39 @@ void	Window::loop()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, stone);
 
-		i = 0;
-		while (i < chunkHandler.nbLoadedChunks)
+		duration[0] += glfwGetTime() - tmp_time;
+		total += glfwGetTime() - tmp_time;
+		tmp_time = glfwGetTime();
+		
+		tmp = chunkHandler.enabledChunks;
+		while (tmp)
 		{
-			if (chunkHandler.loaded_chunks[i] != NULL)
+			if (tmp->chunk != NULL)
 			{
 				glEnableVertexAttribArray(0);
-				glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->vboID);
+				glBindBuffer(GL_ARRAY_BUFFER, tmp->chunk->vboID);
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		
 				glEnableVertexAttribArray(1);
-				glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->translationsID);
+				glBindBuffer(GL_ARRAY_BUFFER, tmp->chunk->translationsID);
 				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 				glVertexAttribDivisor(1, 1);
 
 				glEnableVertexAttribArray(2);
-				glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->cubeID);
+				glBindBuffer(GL_ARRAY_BUFFER, tmp->chunk->cubeID);
 				glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
 				glVertexAttribDivisor(2, 1);
 
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunkHandler.loaded_chunks[i]->iboID);
-				glDrawElementsInstanced(GL_TRIANGLES, chunkHandler.loaded_chunks[i]->nbIndices, GL_UNSIGNED_INT, NULL, chunkHandler.loaded_chunks[i]->nbInstances);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tmp->chunk->iboID);
+				glDrawElementsInstanced(GL_TRIANGLES, tmp->chunk->nbIndices, GL_UNSIGNED_INT, NULL, tmp->chunk->nbInstances);
 			}
-			i++;
+			tmp = tmp->next;
 		}
+		duration[1] += glfwGetTime() - tmp_time;
+		total += glfwGetTime() - tmp_time;
+		tmp_time = glfwGetTime();
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
@@ -130,6 +154,16 @@ void	Window::loop()
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		duration[2] += glfwGetTime() - tmp_time;
+		total += glfwGetTime() - tmp_time;
+		if (total > 1.0f)
+		{
+			std::cout << "part1: " << (duration[0] / total)*100 << ", part2: " << (duration[1] / total)*100 << ", part3: " << (duration[2] / total)*100 << std::endl;
+			total -= 1.0f;
+			duration[0] = 0;
+			duration[1] = 0;
+			duration[2] = 0;
+		}
 	}
 	exit(0);
 }

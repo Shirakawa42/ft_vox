@@ -4,11 +4,7 @@
 
 Player::Player()
 {
-	pos.x = 0.0f;
-	pos.y = 0.0f;
-	pos.z = 5.0f;
-	speed = 0.5f;
-	Projection = glm::perspective(glm::radians(45.0f), (float)1000 / (float)1000, 0.1f, 100.0f);
+	Projection = glm::perspective(glm::radians(45.0f), (float)1000 / (float)1000, 0.1f, 500.0f);
 	View = glm::lookAt(
 			glm::vec3(4,6,3),
 			glm::vec3(0,1,0),
@@ -16,11 +12,11 @@ Player::Player()
 		);
 	Model = glm::mat4(1.0f);
 	mvp = Projection * View * Model;
-	position = glm::vec3(0,0,5);
+	position = glm::vec3(0,180,0);
 	horizontalAngle = 3.14f;
 	verticalAngle = 0.0f;
 	initialFoV = FOV;
-	speed = 3.0f;
+	speed = 50.0f;
 	mouseSpeed = 0.05f;
 }
 
@@ -62,12 +58,9 @@ void	Player::mouseControl(GLFWwindow *window)
 	View = glm::lookAt(position, position+direction, up);
 	mvp = Projection * View * Model;
 	glfwSetCursorPos(window, 1000/2, 1000/2);
-	pos.x = position.x;
-	pos.y = position.y;
-	pos.z = position.z;
 }
 
-t_vec3	Player::GetPos()
+glm::vec3	Player::GetPos()
 {
-	return pos;
+	return position;
 }

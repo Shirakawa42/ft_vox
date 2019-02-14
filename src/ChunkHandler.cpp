@@ -2,22 +2,22 @@
 
 ChunkHandler::ChunkHandler()
 {
-	int i;
-
-	nbLoadedChunks = 0;
-	loaded_chunks = (Chunk**)malloc(sizeof(Chunk*) * MAX_LOADED_CHUNKS);
-	i = 0;
-	while (i < MAX_LOADED_CHUNKS)
-		loaded_chunks[i++] = NULL;
+	nbEnabledChunks = 0;
+	nbDisabledChunks = 0;
+	enabledChunks = (t_ChunkList*)malloc(sizeof(t_ChunkList));
+	enabledChunks->next = NULL;
+	enabledChunks->chunk = NULL;
+	enabledChunks->prev = NULL;
+	disabledChunks = NULL;
 	mapgen = new MapGeneration();
 }
 
 ChunkHandler::~ChunkHandler()
 {
-	
+	delete(mapgen);
 }
 
-Chunk	*ChunkHandler::CreateFlatChunk(int x, int y)
+Chunk	*ChunkHandler::GenerateChunk(int x, int y)
 {
 	Chunk	*chunk = new Chunk();
 	
@@ -30,24 +30,49 @@ Chunk	*ChunkHandler::CreateFlatChunk(int x, int y)
 
 bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
 {
-	int		i;
+	t_ChunkList	*tmp;
 
-	i = 0;
-	while (i < nbLoadedChunks)
+	tmp = enabledChunks;
+	while (tmp)
 	{
-		if (loaded_chunks[i] != NULL)
-			if (loaded_chunks[i]->x == x && loaded_chunks[i]->y == y)
+		if (tmp->chunk != NULL)
+			if (tmp->chunk->x == x && tmp->chunk->y == y)
 				return true;
-		i++;
+		tmp = tmp->next;
+	}
+	tmp = disabledChunks;
+	while (tmp)
+	{
+		if (tmp->chunk != NULL)
+			if (tmp->chunk->x == x && tmp->chunk->y == y)
+				return true;
+		tmp = tmp->next;
 	}
 	return false;
 }
 
-void	ChunkHandler::GenerateFlatChunks()
+void	ChunkHandler::AddChunkToEnabledList(int x, int y)
+{
+	t_ChunkList	*tmp;
+
+	tmp = enabledChunks;
+	if (tmp->chunk != NULL)
+	{
+		while (tmp->next)
+			tmp = tmp->next;
+		tmp->next = (t_ChunkList*)malloc(sizeof(t_ChunkList));
+		tmp->next->prev = tmp;
+		tmp = tmp->next;
+		tmp->next = NULL;
+	}
+	tmp->chunk = GenerateChunk(x, y);
+	nbEnabledChunks++;
+}
+
+void	ChunkHandler::GenerateChunks()
 {
 	int		i;
 	int		j;
-	int		k;
 	int		x;
 	int		y;
 
@@ -58,27 +83,17 @@ void	ChunkHandler::GenerateFlatChunks()
 		while (j > -VIEW_DISTANCE - CHUNK_XY + player.GetPos().z)
 		{
 			if (i < 0)
-				x = -(-i - (-i % CHUNK_XY) - CHUNK_XY/2);
+				x = (-(-i - (-i % CHUNK_XY) - CHUNK_XY/2)) - CHUNK_XY/2;
 			else
-				x = i - (i % CHUNK_XY) - CHUNK_XY/2;
+				x = (i - (i % CHUNK_XY) - CHUNK_XY/2) - CHUNK_XY/2;
 			if (j < 0)
-				y = -(-j - (-j % CHUNK_XY) - CHUNK_XY/2);
+				y = (-(-j - (-j % CHUNK_XY) - CHUNK_XY/2)) - CHUNK_XY/2;
 			else
-				y = j - (j % CHUNK_XY) - CHUNK_XY/2;
+				y = (j - (j % CHUNK_XY) - CHUNK_XY/2) - CHUNK_XY/2;
 			if (CheckIfChunkAtPos(x, y) == false)
 			{
-				k = 0;
-				while (k < MAX_LOADED_CHUNKS)
-				{
-					if (loaded_chunks[k] == NULL)
-					{
-						loaded_chunks[k] = CreateFlatChunk(x, y);
-						nbLoadedChunks++;
-						std::cout << "Chunk generated ! Nb loaded chunks: " << nbLoadedChunks << std::endl;
-						break ;
-					}
-					k++;
-				}
+				AddChunkToEnabledList(x, y);
+				std::cout << "Chunk generated ! Nb enabled chunks: " << nbEnabledChunks << std::endl;
 			}
 			j -= CHUNK_XY;
 		}
@@ -86,22 +101,97 @@ void	ChunkHandler::GenerateFlatChunks()
 	}
 }
 
-void	ChunkHandler::FlatMapHandler()
+void	ChunkHandler::MapHandler()
 {
-	//int		i;
-//
-	//i = 0;
-	//while (i < MAX_LOADED_CHUNKS)
-	//{
-	//	if (loaded_chunks[i] != NULL)
-	//	{
-	//		if (distance(loaded_chunks[i]->x, loaded_chunks[i]->y, player.GetPos().x, player.GetPos().y) > VIEW_DISTANCE * 2)
-	//		{
-	//			delete(loaded_chunks[i]);
-	//			loaded_chunks[i] = NULL;
-	//		}
-	//	}
-	//	i++;
-	//}
-	GenerateFlatChunks();
+	t_ChunkList	*target;
+	t_ChunkList	*tmp2;
+	t_ChunkList	*r;
+
+	target = enabledChunks;
+	while (target && target->chunk)
+	{
+		r = target->next;
+		if (glm::distance(glm::vec2(target->chunk->x, target->chunk->y), glm::vec2(player.GetPos().x, player.GetPos().z)) > VIEW_DISTANCE * 2.0f)
+		{
+			target->chunk->enabled = false;
+			if (target->prev)
+			{
+				target->prev->next = target->next;
+				if (target->next)
+					target->next->prev = target->prev;
+			}
+			else
+			{
+				enabledChunks = enabledChunks->next;
+				enabledChunks->prev = NULL;
+			}
+			tmp2 = disabledChunks;
+			if (tmp2 != NULL)
+			{
+				while (tmp2->next)
+					tmp2 = tmp2->next;
+				tmp2->next = target;
+				tmp2->next->prev = tmp2;
+				tmp2 = tmp2->next;
+				tmp2->next = NULL;
+			}
+			else
+			{
+				disabledChunks = target;
+				disabledChunks->prev = NULL;
+				disabledChunks->next = NULL;
+			}
+			nbEnabledChunks--;
+			nbDisabledChunks++;
+		}
+		target = r;
+	}
+	target = disabledChunks;
+	while (target && target->chunk)
+	{
+		r = target->next;
+		if (glm::distance(glm::vec2(target->chunk->x, target->chunk->y), glm::vec2(player.GetPos().x, player.GetPos().z)) < VIEW_DISTANCE)
+		{
+			target->chunk->enabled = true;
+			if (target->prev)
+			{
+				target->prev->next = target->next;
+				if (target->next)
+					target->next->prev = target->prev;
+			}
+			else
+			{
+				disabledChunks = target->next;
+				if (disabledChunks)
+					disabledChunks->prev = NULL;
+			}
+			tmp2 = enabledChunks;
+			while (tmp2->next)
+				tmp2 = tmp2->next;
+			tmp2->next = target;
+			tmp2->next->prev = tmp2;
+			tmp2->next->next = NULL;
+			nbEnabledChunks++;
+			nbDisabledChunks--;
+		}
+		target = r;
+	}
+	GenerateChunks();
+}
+
+bool	ChunkHandler::isChunkVisible(Chunk *chunk)
+{
+	return true;
+}
+
+void	ChunkHandler::disableNonVisible()
+{
+	t_ChunkList	*tmp;
+
+	tmp = enabledChunks;
+	while (tmp && tmp->chunk->enabled == true)
+	{
+		tmp->chunk->enabled = isChunkVisible(tmp->chunk);
+		tmp = tmp->next;
+	}
 }
