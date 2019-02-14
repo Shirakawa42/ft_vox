@@ -13,9 +13,8 @@ class Player
 		Player();
 		~Player();
 		glm::vec3		GetPos();
-		glm::mat4		mvp;
-		float			deltaTime;
 		void			mouseControl(GLFWwindow *window);
+		glm::mat4		mvp;
 	private:
 		glm::mat4		Projection;
 		glm::mat4		View;
@@ -27,3 +26,5 @@ class Player
 		float			speed;
 		float			mouseSpeed;
 };
+
+extern float	g_deltaTime;

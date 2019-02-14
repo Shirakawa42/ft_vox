@@ -30,8 +30,8 @@ void	Player::mouseControl(GLFWwindow *window)
 	double x;
 	double y;
 	glfwGetCursorPos(window, &x, &y);
-	horizontalAngle += mouseSpeed * deltaTime * float(1000/2 - x);
-	verticalAngle += mouseSpeed * deltaTime * float(1000/2 - y);
+	horizontalAngle += mouseSpeed * g_deltaTime * float(1000/2 - x);
+	verticalAngle += mouseSpeed * g_deltaTime * float(1000/2 - y);
 	glm::vec3 direction(
     	cos(verticalAngle) * sin(horizontalAngle),
    		sin(verticalAngle),
@@ -44,17 +44,17 @@ void	Player::mouseControl(GLFWwindow *window)
 	);
 	glm::vec3 up = glm::cross(right, direction);
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	    position += direction * deltaTime * speed;
+	    position += direction * g_deltaTime * speed;
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	    position -= direction * deltaTime * speed;
+	    position -= direction * g_deltaTime * speed;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	    position += right * deltaTime * speed;
+	    position += right * g_deltaTime * speed;
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	    position -= right * deltaTime * speed;
+	    position -= right * g_deltaTime * speed;
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	    position.y += deltaTime * speed;
+	    position.y += g_deltaTime * speed;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-	    position.y -= deltaTime * speed;
+	    position.y -= g_deltaTime * speed;
 	View = glm::lookAt(position, position+direction, up);
 	mvp = Projection * View * Model;
 	glfwSetCursorPos(window, 1000/2, 1000/2);

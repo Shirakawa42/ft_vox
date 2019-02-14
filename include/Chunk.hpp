@@ -13,30 +13,38 @@
 class Chunk
 {
 	public:
-		Chunk();
+		Chunk(glm::vec2 position, MapGeneration **map);
 		~Chunk();
-		void			generate();
-		int				x;
-		int				y;
+		glm::vec2		GetPos();
+		int				GetNbInstances();
+		GLuint			GetVBOID();
+		GLuint			GetIBOID();
+		GLuint			GetTID();
+		GLuint			GetCID();
+		bool			isEnabled();
+		void			Enable();
+		void			Disable();
+	private:
+		bool			enabled;
 		GLuint			vboID;
 		GLuint			iboID;
-		float			*vertices;
-		unsigned int	*indices;
-		int				nbInstances;
-		GLfloat			*translations;
 		GLuint			translationsID;
 		GLuint			cubeID;
+		int				nbInstances;
+		float			*vertices;
+		unsigned int	*indices;
+		GLfloat			*translations;
 		GLuint			*cubes;
+		const glm::vec2	position;
 		MapGeneration	**mapgen;
-		bool			enabled;
-	private:
-		int			chunk[CHUNK_XY][CHUNK_XY][CHUNK_Z];
-		bool		chunkActive[CHUNK_XY][CHUNK_XY][CHUNK_Z];
-		void		calcVertices();
-		void		setVBO();
-		void		setIBO();
-		void		addCubeVertices();
-		void		addIndices();
-		void		setTranslationsO(int nb);
-		void		setCubeO(int nb);
+		int				chunk[CHUNK_XY][CHUNK_XY][CHUNK_Z];
+		void			generate();
+		void			calcVertices();
+		void			setVBO();
+		void			setIBO();
+		void			addCubeVertices();
+		void			addIndices();
+		void			setTranslationsO(int nb);
+		void			setCubeO(int nb);
+		bool			isCubeVisible(int x, int y, int z);
 };

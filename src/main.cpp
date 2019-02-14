@@ -1,6 +1,9 @@
 #include "ChunkHandler.hpp"
 #include "Window.hpp"
 
+Player				g_player;
+float				g_deltaTime;
+
 int		main(void)
 {
 	Window			window;

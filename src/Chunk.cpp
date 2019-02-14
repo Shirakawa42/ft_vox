@@ -1,18 +1,20 @@
 #include "Chunk.hpp"
 #include <iostream>
 
-Chunk::Chunk()
+Chunk::Chunk(glm::vec2 position, MapGeneration **map) : position(position)
 {
 	glGenBuffers(1, &vboID);
 	glGenBuffers(1, &iboID);
 	glGenBuffers(1, &translationsID);
 	glGenBuffers(1, &cubeID);
+	mapgen = map;
 	nbInstances = 0;
 	vertices = (float*)malloc(sizeof(float) * 8 * 3);
 	indices = (unsigned int*)malloc(sizeof(unsigned int) * 12 * 3);
 	translations = (GLfloat*)malloc(sizeof(GLfloat) * CHUNK_SIZE * 3);
 	cubes = (GLuint*)malloc(sizeof(GLuint) * CHUNK_SIZE);
 	enabled = true;
+	generate();
 }
 
 Chunk::~Chunk()
@@ -43,7 +45,7 @@ void	Chunk::generate()
 		y = 0;
 		while (y < CHUNK_XY)
 		{
-			p = (*mapgen)->noise((float)(x + this->x) / 30.0f + 0.5f, (float)(y + this->y) / 30.0f + 0.5f, 0.0f);
+			p = (*mapgen)->noise((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f);
 			power = (int)(15.0f * p) + 160;
 			z = 0;
 			while (z < power)
@@ -74,13 +76,10 @@ void	Chunk::generate()
 			{
 				if (chunk[x][y][z] > 0)
 				{
-					if (chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0 && (y % CHUNK_XY != 0 && x % CHUNK_XY != 0 && z % CHUNK_Z != 0))
-						chunkActive[x][y][z] = false;
-					else
+					if (isCubeVisible(x, y, z))
 					{
-						chunkActive[x][y][z] = true;
-						translations[nb] = x + this->x;
-						translations[nb + 2] = y + this->y;
+						translations[nb] = x + this->position.x;
+						translations[nb + 2] = y + this->position.y;
 						translations[nb + 1] = z;
 						cubes[nbInstances] = chunk[x][y][z];
 						nbInstances++;
@@ -184,4 +183,56 @@ void	Chunk::calcVertices()
 	addIndices();
 	setVBO();
 	setIBO();
+}
+
+bool	Chunk::isCubeVisible(int x, int y, int z)
+{
+	if (chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0 && (y % CHUNK_XY != 0 && x % CHUNK_XY != 0 && z % CHUNK_Z != 0))
+		return false;
+	return true;
+}
+
+glm::vec2	Chunk::GetPos()
+{
+	return position;
+}
+
+int			Chunk::GetNbInstances()
+{
+	return nbInstances;
+}
+
+GLuint		Chunk::GetVBOID()
+{
+	return vboID;
+}
+
+GLuint		Chunk::GetIBOID()
+{
+	return iboID;
+}
+
+GLuint		Chunk::GetTID()
+{
+	return translationsID;
+}
+
+GLuint		Chunk::GetCID()
+{
+	return cubeID;
+}
+
+bool		Chunk::isEnabled()
+{
+	return enabled;
+}
+
+void		Chunk::Enable()
+{
+	enabled = true;
+}
+
+void		Chunk::Disable()
+{
+	enabled = false;
 }

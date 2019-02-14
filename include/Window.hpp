@@ -14,11 +14,8 @@ class Window
 		~Window();
 		void	init();
 		void	loop();
-		float	getDeltaTime();
 	private:
 		GLFWwindow		*window;
-		ChunkHandler	chunkHandler;
-		float			deltaTime;
 		void			handleTime();
 		GLuint			vaoID;
 		GLuint			programID;
@@ -28,3 +25,5 @@ class Window
 		GLuint			grassID;
 		GLuint			stoneID;
 };
+
+extern Player	g_player;

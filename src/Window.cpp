@@ -10,11 +10,6 @@ Window::~Window()
 	glfwTerminate();
 }
 
-float	Window::getDeltaTime()
-{
-	return deltaTime;
-}
-
 void	Window::handleTime()
 {
 	float			current_frame;
@@ -25,10 +20,10 @@ void	Window::handleTime()
 	current_frame = glfwGetTime();
 	if (last_frame == 0.0f)
 		last_frame = current_frame;
-	deltaTime = current_frame - last_frame;
+	g_deltaTime = current_frame - last_frame;
 	last_frame = current_frame;
 	fps++;
-	fpstime += deltaTime;
+	fpstime += g_deltaTime;
 	if (fpstime >= 1.0f)
 	{
 		std::cout << "FPS: " << fps << std::endl;
@@ -76,9 +71,10 @@ void	Window::init()
 
 void	Window::loop()
 {
-	GLuint	grass;
-	GLuint	stone;
-	t_ChunkList	*tmp;
+	GLuint			grass;
+	GLuint			stone;
+	ChunkHandler	chunkHandler;
+	int				i;
 
 	grass = texture.load_bmp((char*)"texture/grass.bmp");
 	stone = texture.load_bmp((char*)"texture/stone.bmp");
@@ -98,14 +94,12 @@ void	Window::loop()
 	{
 		tmp_time = glfwGetTime();
 		handleTime();
-		chunkHandler.player.deltaTime = deltaTime;
 		chunkHandler.MapHandler();
-		chunkHandler.player.mouseControl(window);
-		chunkHandler.disableNonVisible();
+		g_player.mouseControl(window);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(programID);
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &chunkHandler.player.mvp[0][0]);
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &g_player.mvp[0][0]);
 
 		glUniform1i(grassID, 0);
 		glUniform1i(stoneID, 1);
@@ -118,31 +112,29 @@ void	Window::loop()
 		total += glfwGetTime() - tmp_time;
 		tmp_time = glfwGetTime();
 		
-		tmp = chunkHandler.enabledChunks;
-		while (tmp)
+		i = 0;
+		while (i < 1)
 		{
-			if (tmp->chunk != NULL)
-			{
-				glEnableVertexAttribArray(0);
-				glBindBuffer(GL_ARRAY_BUFFER, tmp->chunk->vboID);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetVBOID());
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		
-				glEnableVertexAttribArray(1);
-				glBindBuffer(GL_ARRAY_BUFFER, tmp->chunk->translationsID);
-				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-				glVertexAttribDivisor(1, 1);
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetTID());
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+			glVertexAttribDivisor(1, 1);
 
-				glEnableVertexAttribArray(2);
-				glBindBuffer(GL_ARRAY_BUFFER, tmp->chunk->cubeID);
-				glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
-				glVertexAttribDivisor(2, 1);
+			glEnableVertexAttribArray(2);
+			glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetCID());
+			glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
+			glVertexAttribDivisor(2, 1);
 
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tmp->chunk->iboID);
-				glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, tmp->chunk->nbInstances);
-			}
-			tmp = tmp->next;
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetIBOID());
+			glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, chunkHandler.GetFirstChunk()->GetNbInstances());
+			
+			i++;
 		}
 		duration[1] += glfwGetTime() - tmp_time;
 		total += glfwGetTime() - tmp_time;
