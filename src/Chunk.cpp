@@ -19,6 +19,7 @@ Chunk::Chunk(glm::vec2 position, MapGeneration **map) : position(position)
 
 Chunk::~Chunk()
 {
+	std::cout << "Chunk destroyed !" << std::endl;
 	free(vertices);
 	free(indices);
 	free(translations);
@@ -187,7 +188,7 @@ void	Chunk::calcVertices()
 
 bool	Chunk::isCubeVisible(int x, int y, int z)
 {
-	if (chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0 && (y % CHUNK_XY != 0 && x % CHUNK_XY != 0 && z % CHUNK_Z != 0))
+	if (chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
 		return false;
 	return true;
 }

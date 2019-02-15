@@ -14,13 +14,15 @@ class ChunkHandler
 	public:
 		ChunkHandler();
 		~ChunkHandler();
-		void			MapHandler();
-		Chunk			*GetFirstChunk();
+		void				MapHandler();
+		void				LoadChunks();
 	private:
-		MapGeneration	*mapgen;
-		Chunk			*GenerateChunk(int x, int y);
-		void			GenerateChunks();
-		bool			CheckIfChunkAtPos(int x, int y);
-		void			AddChunkToEnabledList(int x, int y);
-		Chunk			*firstChunk;
+		std::vector<Chunk*>			enabledChunks;
+		std::vector<Chunk*>			disabledChunks;
+		MapGeneration				*mapgen;
+		Chunk						*GenerateChunk(int x, int y);
+		void						GenerateChunks();
+		void						AddChunkAtPos(int x, int y);
+		bool						CheckIfChunkAtPos(int x, int y);
+		void						DisableChunks();
 };

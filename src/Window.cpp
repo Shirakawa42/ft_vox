@@ -71,10 +71,9 @@ void	Window::init()
 
 void	Window::loop()
 {
-	GLuint			grass;
-	GLuint			stone;
-	ChunkHandler	chunkHandler;
-	int				i;
+	GLuint				grass;
+	GLuint				stone;
+	ChunkHandler		chunkHandler;
 
 	grass = texture.load_bmp((char*)"texture/grass.bmp");
 	stone = texture.load_bmp((char*)"texture/stone.bmp");
@@ -112,30 +111,8 @@ void	Window::loop()
 		total += glfwGetTime() - tmp_time;
 		tmp_time = glfwGetTime();
 		
-		i = 0;
-		while (i < 1)
-		{
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetVBOID());
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-		
-			glEnableVertexAttribArray(1);
-			glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetTID());
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-			glVertexAttribDivisor(1, 1);
+		chunkHandler.LoadChunks();
 
-			glEnableVertexAttribArray(2);
-			glBindBuffer(GL_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetCID());
-			glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
-			glVertexAttribDivisor(2, 1);
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, chunkHandler.GetFirstChunk()->GetIBOID());
-			glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, chunkHandler.GetFirstChunk()->GetNbInstances());
-			
-			i++;
-		}
 		duration[1] += glfwGetTime() - tmp_time;
 		total += glfwGetTime() - tmp_time;
 		tmp_time = glfwGetTime();

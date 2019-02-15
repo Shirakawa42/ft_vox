@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include "Maths.hpp"
 #include "MapGeneration.hpp"
+#include "Player.hpp"
 
 # define CHUNK_XY 64
 # define CHUNK_Z 256

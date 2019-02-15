@@ -25,5 +25,3 @@ class Window
 		GLuint			grassID;
 		GLuint			stoneID;
 };
-
-extern Player	g_player;
