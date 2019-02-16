@@ -4,7 +4,7 @@
 
 Player::Player()
 {
-	Projection = glm::perspective(glm::radians(45.0f), (float)1000 / (float)1000, 0.1f, 500.0f);
+	Projection = glm::perspective(glm::radians(FOV), (float)Wscreen / (float)Hscreen, 0.1f, 500.0f);
 	View = glm::lookAt(
 			glm::vec3(4,6,3),
 			glm::vec3(0,1,0),
@@ -30,8 +30,8 @@ void	Player::mouseControl(GLFWwindow *window)
 	double x;
 	double y;
 	glfwGetCursorPos(window, &x, &y);
-	horizontalAngle += mouseSpeed * g_deltaTime * float(1000/2 - x);
-	verticalAngle += mouseSpeed * g_deltaTime * float(1000/2 - y);
+	horizontalAngle += mouseSpeed * g_deltaTime * float(Wscreen/2 - x);
+	verticalAngle += mouseSpeed * g_deltaTime * float(Hscreen/2 - y);
 	glm::vec3 direction(
     	cos(verticalAngle) * sin(horizontalAngle),
    		sin(verticalAngle),
@@ -57,7 +57,7 @@ void	Player::mouseControl(GLFWwindow *window)
 	    position.y -= g_deltaTime * speed;
 	View = glm::lookAt(position, position+direction, up);
 	mvp = Projection * View * Model;
-	glfwSetCursorPos(window, 1000/2, 1000/2);
+	glfwSetCursorPos(window, Wscreen/2, Hscreen/2);
 }
 
 glm::vec3	Player::GetPos()

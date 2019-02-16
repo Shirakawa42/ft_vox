@@ -41,7 +41,7 @@ void	Window::init()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	window = glfwCreateWindow(1000, 1000, "ft_vox", NULL, NULL);
+	window = glfwCreateWindow(Wscreen, Hscreen, "ft_vox", NULL, NULL);
 	if (!window)
 		throw VoxException("ERROR: could not open window with GLFW3\n");
 	glfwMakeContextCurrent(window);

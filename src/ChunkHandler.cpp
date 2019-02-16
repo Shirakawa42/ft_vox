@@ -86,6 +86,7 @@ void	ChunkHandler::AddChunkAtPos(int x, int y)
 
 	chunk = new Chunk(glm::vec2(x, y), &mapgen);
 	enabledChunks.push_back(chunk);
+	std::cout << "Chunk generated ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 }
 
 bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
@@ -108,6 +109,7 @@ bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
 			chunk->Enable();
 			enabledChunks.push_back(chunk);
 			disabledChunks.erase(disabledChunks.begin() + i);
+			std::cout << "Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 			return true;
 		}
 		else

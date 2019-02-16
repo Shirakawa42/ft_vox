@@ -1,7 +1,9 @@
 #pragma once
 
-# define FOV 45.0f
-# define VIEW_DISTANCE 128.0f
+# define FOV 80.0f
+# define VIEW_DISTANCE 160.0f
+# define Wscreen 1280
+# define Hscreen 720
 
 #include <vector>
 #include <GL/glew.h>
