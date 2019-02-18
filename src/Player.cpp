@@ -4,12 +4,15 @@
 
 Player::Player()
 {
-	Projection = glm::perspective(glm::radians(FOV), (float)Wscreen / (float)Hscreen, 0.1f, 500.0f);
+	Projection = glm::perspective(glm::radians(FOV), (float)Wscreen / (float)Hscreen, 0.1f, VIEW_DISTANCE);
+	frustum = new FrustumCulling(Projection);
 	View = glm::lookAt(
 			glm::vec3(4,6,3),
 			glm::vec3(0,1,0),
 			glm::vec3(0,1,0)
 		);
+	frustum->setView(View);
+	frustum->setPlanes();
 	Model = glm::mat4(1.0f);
 	mvp = Projection * View * Model;
 	position = glm::vec3(0,180,0);
@@ -56,6 +59,8 @@ void	Player::mouseControl(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	    position.y -= g_deltaTime * speed;
 	View = glm::lookAt(position, position+direction, up);
+	frustum->setView(View);
+	frustum->setPlanes();
 	mvp = Projection * View * Model;
 	glfwSetCursorPos(window, Wscreen/2, Hscreen/2);
 }

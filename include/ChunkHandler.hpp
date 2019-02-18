@@ -5,6 +5,8 @@
 #include "Chunk.hpp"
 #include <vector>
 #include <iostream>
+#include <thread>
+#include <mutex>
 #include "Player.hpp"
 #include "Maths.hpp"
 #include "MapGeneration.hpp"
@@ -25,4 +27,6 @@ class ChunkHandler
 		void						AddChunkAtPos(int x, int y);
 		bool						CheckIfChunkAtPos(int x, int y);
 		void						DisableChunks();
+		std::thread					*t;
+		std::mutex					mutex;
 };

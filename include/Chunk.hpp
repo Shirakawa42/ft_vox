@@ -6,6 +6,7 @@
 #include "Maths.hpp"
 #include "MapGeneration.hpp"
 #include "Player.hpp"
+#include <mutex>
 
 # define CHUNK_XY 64
 # define CHUNK_Z 256
@@ -14,7 +15,7 @@
 class Chunk
 {
 	public:
-		Chunk(glm::vec2 position, MapGeneration **map);
+		Chunk(glm::vec2 position);
 		~Chunk();
 		glm::vec2		GetPos();
 		int				GetNbInstances();
@@ -25,7 +26,13 @@ class Chunk
 		bool			isEnabled();
 		void			Enable();
 		void			Disable();
+		void			generate(MapGeneration **map, std::mutex *mutex);
+		bool			isGenerated();
+		bool			isUsable();
+		void			doOpenGLThings();
 	private:
+		bool			usable;
+		bool			generated;
 		bool			enabled;
 		GLuint			vboID;
 		GLuint			iboID;
@@ -37,15 +44,15 @@ class Chunk
 		GLfloat			*translations;
 		GLuint			*cubes;
 		const glm::vec2	position;
-		MapGeneration	**mapgen;
-		int				chunk[CHUNK_XY][CHUNK_XY][CHUNK_Z];
-		void			generate();
+		MapGeneration	*mapgen;
+		int				nb;
+		int				***chunk;
 		void			calcVertices();
 		void			setVBO();
 		void			setIBO();
 		void			addCubeVertices();
 		void			addIndices();
-		void			setTranslationsO(int nb);
+		void			setTranslationsO();
 		void			setCubeO(int nb);
 		bool			isCubeVisible(int x, int y, int z);
 };

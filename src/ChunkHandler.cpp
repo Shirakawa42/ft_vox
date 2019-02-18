@@ -32,6 +32,11 @@ void	ChunkHandler::MapHandler()
 		}
 		i += CHUNK_XY;
 	}
+	for (int g = 0; g < enabledChunks.size(); g++)
+	{
+		if (!enabledChunks[g]->isUsable() && enabledChunks[g]->isGenerated())
+			enabledChunks[g]->doOpenGLThings();
+	}
 	DisableChunks();
 }
 
@@ -43,7 +48,7 @@ void	ChunkHandler::DisableChunks()
 	i = 0;
 	while (i < enabledChunks.size() && (chunk = enabledChunks[i]))
 	{
-		if (glm::distance(chunk->GetPos() + glm::vec2(CHUNK_XY/2, CHUNK_XY/2), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > VIEW_DISTANCE * 2.0f)
+		if (chunk->isUsable() && glm::distance(chunk->GetPos() + glm::vec2(CHUNK_XY/2, CHUNK_XY/2), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > VIEW_DISTANCE * 2.0f)
 		{
 			chunk->Disable();
 			disabledChunks.push_back(chunk);
@@ -62,30 +67,41 @@ void	ChunkHandler::LoadChunks()
 	i = 0;
 	while (i < enabledChunks.size() && (current = enabledChunks[i]))
 	{
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, current->GetVBOID());
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, current->GetTID());
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-		glVertexAttribDivisor(1, 1);
-		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, current->GetCID());
-		glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
-		glVertexAttribDivisor(2, 1);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, current->GetIBOID());
-		glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, current->GetNbInstances());
+		if (current->isUsable() && g_player.frustum->pointIn(glm::vec3(current->GetPos().x + CHUNK_XY/2, CHUNK_Z/2, current->GetPos().y + CHUNK_XY/2)))
+		{
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, current->GetVBOID());
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, current->GetTID());
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+			glVertexAttribDivisor(1, 1);
+			glEnableVertexAttribArray(2);
+			glBindBuffer(GL_ARRAY_BUFFER, current->GetCID());
+			glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0);
+			glVertexAttribDivisor(2, 1);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, current->GetIBOID());
+			glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, current->GetNbInstances());
+		}
 		i++;
 	}
+}
+
+static void		generateChunk(Chunk **chunk, std::mutex *mutex, MapGeneration **map)
+{
+	(*chunk)->generate(map, mutex);
+	std::cout << "generated !" << std::endl;
 }
 
 void	ChunkHandler::AddChunkAtPos(int x, int y)
 {
 	Chunk	*chunk;
 
-	chunk = new Chunk(glm::vec2(x, y), &mapgen);
+	chunk = new Chunk(glm::vec2(x, y));
 	enabledChunks.push_back(chunk);
+	t = new std::thread(generateChunk, &(enabledChunks.back()), &mutex, &mapgen);
+	t->detach();
 	std::cout << "Chunk generated ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 }
 
@@ -109,7 +125,7 @@ bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
 			chunk->Enable();
 			enabledChunks.push_back(chunk);
 			disabledChunks.erase(disabledChunks.begin() + i);
-			std::cout << "Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
+			std::cout << "Reloading chunk, Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 			return true;
 		}
 		else

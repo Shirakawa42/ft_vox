@@ -14,7 +14,17 @@ int		main(void)
 		window.init();
 		window.loop();
 	}
-	catch (VoxException e)
+	catch (VoxException & e)
+	{
+		std::cout << e.what() << std::endl;
+		exit(0);
+	}
+	catch (std::bad_alloc & e)
+	{
+		std::cout << e.what() << std::endl;
+		exit(0);
+	}
+	catch (std::exception & e)
 	{
 		std::cout << e.what() << std::endl;
 		exit(0);

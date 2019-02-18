@@ -1,5 +1,5 @@
 #include "MapGeneration.hpp"
-#include <iostream>
+
 MapGeneration::MapGeneration()
 {
 	srand(time(NULL));

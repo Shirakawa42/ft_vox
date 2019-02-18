@@ -1,7 +1,7 @@
 #pragma once
 
 # define FOV 80.0f
-# define VIEW_DISTANCE 160.0f
+# define VIEW_DISTANCE 400.0f
 # define Wscreen 1280
 # define Hscreen 720
 
@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Maths.hpp"
+#include "FrustumCulling.hpp"
 
 class Player
 {
@@ -18,6 +19,7 @@ class Player
 		glm::vec3		GetPos();
 		void			mouseControl(GLFWwindow *window);
 		glm::mat4		mvp;
+		FrustumCulling	*frustum;
 	private:
 		glm::mat4		Projection;
 		glm::mat4		View;

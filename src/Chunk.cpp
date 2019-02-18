@@ -1,55 +1,69 @@
 #include "Chunk.hpp"
 #include <iostream>
 
-Chunk::Chunk(glm::vec2 position, MapGeneration **map) : position(position)
+Chunk::Chunk(glm::vec2 position) : position(position)
 {
 	glGenBuffers(1, &vboID);
 	glGenBuffers(1, &iboID);
 	glGenBuffers(1, &translationsID);
 	glGenBuffers(1, &cubeID);
-	mapgen = map;
 	nbInstances = 0;
-	vertices = (float*)malloc(sizeof(float) * 8 * 3);
-	indices = (unsigned int*)malloc(sizeof(unsigned int) * 12 * 3);
-	translations = (GLfloat*)malloc(sizeof(GLfloat) * CHUNK_SIZE * 3);
-	cubes = (GLuint*)malloc(sizeof(GLuint) * CHUNK_SIZE);
+	chunk = new int**[CHUNK_XY];
+	for (int i = 0; i < CHUNK_XY; i++)
+	{
+		chunk[i] = new int*[CHUNK_XY];
+		for (int j = 0; j < CHUNK_XY; j++)
+			chunk[i][j] = new int[CHUNK_Z];
+	}
+	vertices = new float[8 * 3];
+	indices = new unsigned int[12 * 3];
+	translations = new GLfloat[CHUNK_SIZE * 3];
+	cubes = new GLuint[CHUNK_SIZE];
 	enabled = true;
-	generate();
+	nb = 0;
+	generated = false;
+	usable = false;
 }
 
 Chunk::~Chunk()
 {
-	std::cout << "Chunk destroyed !" << std::endl;
-	free(vertices);
-	free(indices);
-	free(translations);
-	free(cubes);
+	delete(vertices);
+	delete(indices);
+	delete(translations);
+	delete(cubes);
+	for (int i = 0; i < CHUNK_XY; i++)
+	{
+		for (int j = 0; j < CHUNK_XY; j++)
+			delete(chunk[i][j]);
+		delete(chunk[i]);
+	}
+	delete(chunk);
 	glDeleteBuffers(1, &vboID);
 	glDeleteBuffers(1, &iboID);
 	glDeleteBuffers(1, &translationsID);
 	glDeleteBuffers(1, &cubeID);
 }
 
-void	Chunk::generate()
+void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 {
 	int		x;
 	int		y;
 	int		z;
 	int		power;
-	int		nb;
 	float	p;
 
-	nb = 0;
 	x = 0;
 	while (x < CHUNK_XY)
 	{
 		y = 0;
 		while (y < CHUNK_XY)
 		{
+			mutex->lock();
 			p = (*mapgen)->noise((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f);
-			power = (int)(15.0f * p) + 160;
+			mutex->unlock();
+			power = (int)(20.0f * p) + 128;
 			z = 0;
-			while (z < power)
+			while (z < power && z < CHUNK_Z)
 			{
 				if (z != power - 1)
 					chunk[x][y][z] = 2;
@@ -93,12 +107,30 @@ void	Chunk::generate()
 		}
 		x++;
 	}
-	setTranslationsO(nb);
-	setCubeO(nbInstances);
 	calcVertices();
+	generated = true;
 }
 
-void	Chunk::setTranslationsO(int nb)
+bool	Chunk::isGenerated()
+{
+	return generated;
+}
+
+bool	Chunk::isUsable()
+{
+	return usable;
+}
+
+void	Chunk::doOpenGLThings()
+{
+	setTranslationsO();
+	setCubeO(nbInstances);
+	setVBO();
+	setIBO();
+	usable = true;
+}
+
+void	Chunk::setTranslationsO()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, translationsID);
 	glBufferData(GL_ARRAY_BUFFER, nb * sizeof(GLfloat), translations, GL_STATIC_DRAW);
@@ -182,13 +214,13 @@ void	Chunk::calcVertices()
 {
 	addCubeVertices();
 	addIndices();
-	setVBO();
-	setIBO();
 }
 
 bool	Chunk::isCubeVisible(int x, int y, int z)
 {
-	if (chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
+	if (x > 0 && x < CHUNK_XY-1 && y > 0 && y < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1
+			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0
+			&& chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
 		return false;
 	return true;
 }
