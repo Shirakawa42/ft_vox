@@ -26,7 +26,29 @@ MapGeneration::MapGeneration()
 
 MapGeneration::MapGeneration(unsigned int seed)
 {
+	p = new int[512];
 
+	for (int i = 0; i < 256; ++i)
+		p[i] = i;
+	float	j = 0;
+	int		tmp;
+	for (int i = 0; i < 256; i++)
+	{
+		j = (float)seed / ((float)i + 1.0f);
+		if (j < 1.0f)
+			j *= 500.0f;
+		while (j > 255.0f)
+			j -= (float)i + ((j > 50000.0f) ? 45000.0f : ((j > 510.0f) ? 1.0f : 255.0f));
+		if ((int)j < 0)
+			j = -j;
+		tmp = p[i];
+		p[i] = p[(int)j];
+		p[(int)j] = tmp;
+	}
+	for (int i = 256; i < 512; i++)
+	{
+		p[i] = p[i - 256];
+	}
 }
 
 MapGeneration::~MapGeneration()

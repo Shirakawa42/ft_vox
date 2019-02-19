@@ -15,11 +15,11 @@ Player::Player()
 	frustum->setPlanes();
 	Model = glm::mat4(1.0f);
 	mvp = Projection * View * Model;
-	position = glm::vec3(0,180,0);
+	position = glm::vec3(0,140,0);
 	horizontalAngle = 3.14f;
 	verticalAngle = 0.0f;
 	initialFoV = FOV;
-	speed = 50.0f;
+	speed = 30.0f;
 	mouseSpeed = 0.05f;
 }
 

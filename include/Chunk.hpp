@@ -15,7 +15,7 @@
 class Chunk
 {
 	public:
-		Chunk(glm::vec2 position);
+		Chunk(glm::vec2 position, int id);
 		~Chunk();
 		glm::vec2		GetPos();
 		int				GetNbInstances();
@@ -30,6 +30,7 @@ class Chunk
 		bool			isGenerated();
 		bool			isUsable();
 		void			doOpenGLThings();
+		int				id;
 	private:
 		bool			usable;
 		bool			generated;
@@ -46,7 +47,7 @@ class Chunk
 		const glm::vec2	position;
 		MapGeneration	*mapgen;
 		int				nb;
-		int				***chunk;
+		unsigned char	***chunk;
 		void			calcVertices();
 		void			setVBO();
 		void			setIBO();

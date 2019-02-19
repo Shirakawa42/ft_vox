@@ -63,22 +63,20 @@ void	Window::init()
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	std::cout << vendor << " ||| " << renderer << std::endl;
 }
 
-void	Window::loop()
+void	Window::loop(bool is_seed, unsigned int seed)
 {
 	GLuint				grass;
 	GLuint				stone;
-	ChunkHandler		chunkHandler;
+	ChunkHandler		chunkHandler(is_seed, seed);
 
-	grass = texture.load_bmp((char*)"texture/grass.bmp");
-	stone = texture.load_bmp((char*)"texture/stone.bmp");
+	grass = texture.load_cubemap((char*)"texture/grass_top.bmp", (char*)"texture/grass_side.bmp", (char*)"texture/dirt.bmp");
+	stone = texture.load_cubemap((char*)"texture/stone.bmp", (char*)"texture/stone.bmp", (char*)"texture/stone.bmp");
 
-	glfwSwapInterval(0);
 	glEnable(GL_CULL_FACE); 
 
 	float	tmp_time;
@@ -91,8 +89,8 @@ void	Window::loop()
 
 	while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 	{
-		tmp_time = glfwGetTime();
 		handleTime();
+		tmp_time = glfwGetTime();
 		chunkHandler.MapHandler();
 		g_player.mouseControl(window);
 

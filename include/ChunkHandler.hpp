@@ -4,6 +4,7 @@
 
 #include "Chunk.hpp"
 #include <vector>
+#include <list>
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -14,13 +15,13 @@
 class ChunkHandler
 {
 	public:
-		ChunkHandler();
+		ChunkHandler(bool is_seed, unsigned int seed);
 		~ChunkHandler();
 		void				MapHandler();
 		void				LoadChunks();
 	private:
-		std::vector<Chunk*>			enabledChunks;
-		std::vector<Chunk*>			disabledChunks;
+		std::list<Chunk*>			enabledChunks;
+		std::list<Chunk*>			disabledChunks;
 		MapGeneration				*mapgen;
 		Chunk						*GenerateChunk(int x, int y);
 		void						GenerateChunks();

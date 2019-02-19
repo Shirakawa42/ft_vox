@@ -13,7 +13,7 @@ class Window
 		Window();
 		~Window();
 		void	init();
-		void	loop();
+		void	loop(bool is_seed, unsigned int seed);
 	private:
 		GLFWwindow		*window;
 		void			handleTime();

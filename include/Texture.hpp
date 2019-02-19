@@ -13,5 +13,7 @@ class Texture
 	public:
 		Texture();
 		~Texture();	
-		GLuint		load_bmp(char *filename);
+		GLuint			load_cubemap(char *top_name, char *side_name, char *bot_name);
+	private:
+		unsigned char	*load_bmp(char *filename, unsigned int *width, unsigned int *height);
 };

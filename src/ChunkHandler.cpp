@@ -1,8 +1,11 @@
 #include "ChunkHandler.hpp"
 
-ChunkHandler::ChunkHandler()
+ChunkHandler::ChunkHandler(bool is_seed, unsigned int seed)
 {
-	mapgen = new MapGeneration();
+	if (is_seed)
+		mapgen = new MapGeneration(seed);
+	else
+		mapgen = new MapGeneration();
 }
 
 ChunkHandler::~ChunkHandler()
@@ -32,10 +35,11 @@ void	ChunkHandler::MapHandler()
 		}
 		i += CHUNK_XY;
 	}
-	for (int g = 0; g < enabledChunks.size(); g++)
+	std::list<Chunk*>::iterator	it;
+	for (it = enabledChunks.begin(); it != enabledChunks.end(); ++it)
 	{
-		if (!enabledChunks[g]->isUsable() && enabledChunks[g]->isGenerated())
-			enabledChunks[g]->doOpenGLThings();
+		if (!(*it)->isUsable() && (*it)->isGenerated())
+			(*it)->doOpenGLThings();
 	}
 	DisableChunks();
 }
@@ -43,29 +47,28 @@ void	ChunkHandler::MapHandler()
 void	ChunkHandler::DisableChunks()
 {
 	Chunk	*chunk;
-	int		i;
+	std::list<Chunk*>::iterator	it = enabledChunks.begin();
 
-	i = 0;
-	while (i < enabledChunks.size() && (chunk = enabledChunks[i]))
+	while (it != enabledChunks.end() && (chunk = *it))
 	{
 		if (chunk->isUsable() && glm::distance(chunk->GetPos() + glm::vec2(CHUNK_XY/2, CHUNK_XY/2), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > VIEW_DISTANCE * 2.0f)
 		{
 			chunk->Disable();
 			disabledChunks.push_back(chunk);
-			enabledChunks.erase(enabledChunks.begin() + i);
+			enabledChunks.erase(it);
+			it = enabledChunks.begin();
 		}
 		else
-			i++;
+			it++;
 	}
 }
 
 void	ChunkHandler::LoadChunks()
 {
-	int		i;
 	Chunk	*current;
+	std::list<Chunk*>::iterator	it = enabledChunks.begin();
 
-	i = 0;
-	while (i < enabledChunks.size() && (current = enabledChunks[i]))
+	while (it != enabledChunks.end() && (current = *it))
 	{
 		if (current->isUsable() && g_player.frustum->pointIn(glm::vec3(current->GetPos().x + CHUNK_XY/2, CHUNK_Z/2, current->GetPos().y + CHUNK_XY/2)))
 		{
@@ -84,52 +87,58 @@ void	ChunkHandler::LoadChunks()
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, current->GetIBOID());
 			glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, current->GetNbInstances());
 		}
-		i++;
+		it++;
 	}
 }
 
 static void		generateChunk(Chunk **chunk, std::mutex *mutex, MapGeneration **map)
 {
 	(*chunk)->generate(map, mutex);
-	std::cout << "generated !" << std::endl;
 }
 
 void	ChunkHandler::AddChunkAtPos(int x, int y)
 {
+	static int id = 0;
 	Chunk	*chunk;
 
-	chunk = new Chunk(glm::vec2(x, y));
+	chunk = new Chunk(glm::vec2(x, y), id);
+	id++;
 	enabledChunks.push_back(chunk);
 	t = new std::thread(generateChunk, &(enabledChunks.back()), &mutex, &mapgen);
 	t->detach();
-	std::cout << "Chunk generated ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
+	std::cout << "Chunk called ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 }
 
 bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
 {
-	int		i;
 	Chunk	*chunk;
+	std::list<Chunk*>::iterator	it = enabledChunks.begin();
 
-	i = 0;
-	while (i < enabledChunks.size() && (chunk = enabledChunks[i]))
+	while (it != enabledChunks.end() && (chunk = *it))
 	{
 		if (chunk->GetPos() == glm::vec2(x, y))
 			return true;
-		i++;
+		it++;
 	}
-	i = 0;
-	while (i < disabledChunks.size() && (chunk = disabledChunks[i]))
+	it = disabledChunks.begin();
+	while (it != disabledChunks.end() && (chunk = *it))
 	{
 		if (chunk->GetPos() == glm::vec2(x, y))
 		{
 			chunk->Enable();
 			enabledChunks.push_back(chunk);
-			disabledChunks.erase(disabledChunks.begin() + i);
-			std::cout << "Reloading chunk, Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
+			disabledChunks.erase(it);
 			return true;
 		}
+		else if (glm::distance((*it)->GetPos(), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > 5000.0f)
+		{
+			disabledChunks.erase(it);
+			delete(chunk);
+			it = disabledChunks.begin();
+			std::cout << "removing chunk" << std::endl;
+		}
 		else
-			i++;
+			it++;
 	}
 	return false;
 }

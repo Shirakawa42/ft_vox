@@ -1,19 +1,20 @@
 #include "Chunk.hpp"
 #include <iostream>
 
-Chunk::Chunk(glm::vec2 position) : position(position)
+Chunk::Chunk(glm::vec2 position, int id) : position(position)
 {
+	this->id = id;
 	glGenBuffers(1, &vboID);
 	glGenBuffers(1, &iboID);
 	glGenBuffers(1, &translationsID);
 	glGenBuffers(1, &cubeID);
 	nbInstances = 0;
-	chunk = new int**[CHUNK_XY];
+	chunk = new unsigned char**[CHUNK_XY];
 	for (int i = 0; i < CHUNK_XY; i++)
 	{
-		chunk[i] = new int*[CHUNK_XY];
+		chunk[i] = new unsigned char*[CHUNK_XY];
 		for (int j = 0; j < CHUNK_XY; j++)
-			chunk[i][j] = new int[CHUNK_Z];
+			chunk[i][j] = new unsigned char[CHUNK_Z];
 	}
 	vertices = new float[8 * 3];
 	indices = new unsigned int[12 * 3];
@@ -34,7 +35,7 @@ Chunk::~Chunk()
 	for (int i = 0; i < CHUNK_XY; i++)
 	{
 		for (int j = 0; j < CHUNK_XY; j++)
-			delete(chunk[i][j]);
+			delete[](chunk[i][j]);
 		delete(chunk[i]);
 	}
 	delete(chunk);
@@ -221,6 +222,26 @@ bool	Chunk::isCubeVisible(int x, int y, int z)
 	if (x > 0 && x < CHUNK_XY-1 && y > 0 && y < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1
 			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0
 			&& chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
+		return false;
+	if (x == 0 && y > 0 && y < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x + 1][y][z] > 0 
+			&& chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 
+			&& chunk[x][y][z - 1] > 0)
+		return false;
+	if (x == CHUNK_XY-1 && y > 0 && y < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x - 1][y][z] > 0 
+			&& chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 
+			&& chunk[x][y][z - 1] > 0)
+		return false;
+	if (y == 0 && x > 0 && x < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x][y + 1][z] > 0 
+			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y][z + 1] > 0 
+			&& chunk[x][y][z - 1] > 0)
+		return false;
+	if (y == CHUNK_XY-1 && x > 0 && x < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x][y - 1][z] > 0 
+			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y][z + 1] > 0 
+			&& chunk[x][y][z - 1] > 0)
+		return false;
+	if (z == 0 && x > 0 && x < CHUNK_XY-1 && y > 0 && y < CHUNK_XY-1 && chunk[x][y][z + 1] > 0
+			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0
+			&& chunk[x][y - 1][z] > 0)
 		return false;
 	return true;
 }
