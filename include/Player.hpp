@@ -20,9 +20,9 @@ class Player
 		void			mouseControl(GLFWwindow *window);
 		glm::mat4		mvp;
 		FrustumCulling	*frustum;
-	private:
 		glm::mat4		Projection;
 		glm::mat4		View;
+	private:
 		glm::mat4		Model;
 		glm::vec3		position;
 		float			horizontalAngle;

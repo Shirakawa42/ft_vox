@@ -44,6 +44,46 @@ GLuint	Texture::load_cubemap(char *top_name, char *side_name, char *bot_name)
 	return texture_id;
 }
 
+GLuint	Texture::load_skybox(char *top_name, char *left_name, char *right_name, char *back_name, char *front_name, char *bot_name)
+{
+	unsigned int	width;
+	unsigned int	height;
+	GLuint	texture_id;
+	unsigned char *top_data;
+	unsigned char *right_data;
+	unsigned char *left_data;
+	unsigned char *front_data;
+	unsigned char *back_data;
+	unsigned char *bot_data;
+
+	top_data = load_bmp(top_name, &width, &height);
+	right_data = load_bmp(right_name, &width, &height);
+	left_data = load_bmp(left_name, &width, &height);
+	front_data = load_bmp(front_name, &width, &height);
+	back_data = load_bmp(back_name, &width, &height);
+	bot_data = load_bmp(bot_name, &width, &height);
+	glGenTextures(1, &texture_id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, width, height, 0, GL_BGR,
+				GL_UNSIGNED_BYTE, right_data);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, width, height, 0, GL_BGR,
+				GL_UNSIGNED_BYTE, left_data);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, width, height, 0, GL_BGR,
+				GL_UNSIGNED_BYTE, top_data);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB, width, height, 0, GL_BGR,
+				GL_UNSIGNED_BYTE, bot_data);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, width, height, 0, GL_BGR,
+				GL_UNSIGNED_BYTE, back_data);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB, width, height, 0, GL_BGR,
+				GL_UNSIGNED_BYTE, front_data);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	return texture_id;
+}
+
 unsigned char	*Texture::load_bmp(char *filename, unsigned int *width, unsigned int *height)
 {
 	int				fd;

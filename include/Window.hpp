@@ -17,11 +17,22 @@ class Window
 	private:
 		GLFWwindow		*window;
 		void			handleTime();
+		void			create_skybox();
+		void			loadSkybox();
 		GLuint			vaoID;
+		GLuint			skyboxVaoID;
 		GLuint			programID;
+		GLuint			skybox_programID;
+		GLuint			skyboxVBO;
 		shaders			s;
 		Texture			texture;
 		GLuint			MatrixID;
+		GLuint			SkyboxProjectionID;
+		GLuint			SkyboxViewID;
 		GLuint			grassID;
 		GLuint			stoneID;
+		GLuint			skyboxID;
+		GLuint			grass;
+		GLuint			stone;
+		GLuint			skybox;
 };

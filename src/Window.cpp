@@ -68,14 +68,92 @@ void	Window::init()
 	std::cout << vendor << " ||| " << renderer << std::endl;
 }
 
+void	Window::create_skybox()
+{
+	float skyboxVertices[] = {
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+
+	glGenVertexArrays(1, &skyboxVaoID);
+	glBindVertexArray(skyboxVaoID);
+	
+	skybox_programID = s.create_program(s.create_shader((char*)"shaders/v_skybox.glsl",
+			GL_VERTEX_SHADER), s.create_shader((char*)"shaders/f_skybox.glsl",
+			GL_FRAGMENT_SHADER));
+	
+	glGenBuffers(1, &skyboxVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, 36 * 3 * sizeof(float), skyboxVertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	SkyboxProjectionID = glGetUniformLocation(skybox_programID, "projection");
+	SkyboxViewID = glGetUniformLocation(skybox_programID, "view");
+	skyboxID = glGetUniformLocation(skybox_programID, "skybox");
+}
+
+void	Window::loadSkybox()
+{
+		glDepthMask(GL_FALSE);
+		glUseProgram(skybox_programID);
+		glBindVertexArray(skyboxVaoID);
+		glUniformMatrix4fv(SkyboxProjectionID, 1, GL_FALSE, &g_player.Projection[0][0]);
+		glUniformMatrix4fv(SkyboxViewID, 1, GL_FALSE, &glm::mat4(glm::mat3(g_player.View))[0][0]);
+
+		glUniform1i(skyboxID, 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(GL_TRUE);
+		glDisableVertexAttribArray(0);
+}
+
 void	Window::loop(bool is_seed, unsigned int seed)
 {
-	GLuint				grass;
-	GLuint				stone;
 	ChunkHandler		chunkHandler(is_seed, seed);
 
 	grass = texture.load_cubemap((char*)"texture/grass_top.bmp", (char*)"texture/grass_side.bmp", (char*)"texture/dirt.bmp");
 	stone = texture.load_cubemap((char*)"texture/stone.bmp", (char*)"texture/stone.bmp", (char*)"texture/stone.bmp");
+	skybox = texture.load_skybox((char*)"texture/top.bmp", (char*)"texture/left.bmp", (char*)"texture/right.bmp", (char*)"texture/back.bmp", (char*)"texture/front.bmp", (char*)"texture/bottom.bmp");
 
 	glEnable(GL_CULL_FACE); 
 
@@ -87,6 +165,8 @@ void	Window::loop(bool is_seed, unsigned int seed)
 	duration[2] = 0;
 	total = 0;
 
+	create_skybox();
+
 	while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 	{
 		handleTime();
@@ -95,7 +175,11 @@ void	Window::loop(bool is_seed, unsigned int seed)
 		g_player.mouseControl(window);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		loadSkybox();
+		
 		glUseProgram(programID);
+		glBindVertexArray(vaoID);
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &g_player.mvp[0][0]);
 
 		glUniform1i(grassID, 0);
