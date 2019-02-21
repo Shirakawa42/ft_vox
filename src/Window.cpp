@@ -153,7 +153,7 @@ void	Window::loop(bool is_seed, unsigned int seed)
 
 	grass = texture.load_cubemap((char*)"texture/grass_top.bmp", (char*)"texture/grass_side.bmp", (char*)"texture/dirt.bmp");
 	stone = texture.load_cubemap((char*)"texture/stone.bmp", (char*)"texture/stone.bmp", (char*)"texture/stone.bmp");
-	skybox = texture.load_skybox((char*)"texture/top.bmp", (char*)"texture/left.bmp", (char*)"texture/right.bmp", (char*)"texture/back.bmp", (char*)"texture/front.bmp", (char*)"texture/bottom.bmp");
+	skybox = texture.load_skybox((char*)"texture/top.jpg", (char*)"texture/left.jpg", (char*)"texture/right.jpg", (char*)"texture/back.jpg", (char*)"texture/front.jpg", (char*)"texture/bottom.jpg");
 
 	glEnable(GL_CULL_FACE); 
 

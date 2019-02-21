@@ -1,5 +1,10 @@
 #include "Texture.hpp"
 
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#endif
+
 Texture::Texture()
 {
 
@@ -46,8 +51,9 @@ GLuint	Texture::load_cubemap(char *top_name, char *side_name, char *bot_name)
 
 GLuint	Texture::load_skybox(char *top_name, char *left_name, char *right_name, char *back_name, char *front_name, char *bot_name)
 {
-	unsigned int	width;
-	unsigned int	height;
+	int	width;
+	int	height;
+	int	nrChannels;
 	GLuint	texture_id;
 	unsigned char *top_data;
 	unsigned char *right_data;
@@ -56,25 +62,25 @@ GLuint	Texture::load_skybox(char *top_name, char *left_name, char *right_name, c
 	unsigned char *back_data;
 	unsigned char *bot_data;
 
-	top_data = load_bmp(top_name, &width, &height);
-	right_data = load_bmp(right_name, &width, &height);
-	left_data = load_bmp(left_name, &width, &height);
-	front_data = load_bmp(front_name, &width, &height);
-	back_data = load_bmp(back_name, &width, &height);
-	bot_data = load_bmp(bot_name, &width, &height);
+	top_data = stbi_load(top_name, &width, &height, &nrChannels, 0);
+	right_data = stbi_load(right_name, &width, &height, &nrChannels, 0);
+	left_data = stbi_load(left_name, &width, &height, &nrChannels, 0);
+	front_data = stbi_load(front_name, &width, &height, &nrChannels, 0);
+	back_data = stbi_load(back_name, &width, &height, &nrChannels, 0);
+	bot_data = stbi_load(bot_name, &width, &height, &nrChannels, 0);
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, width, height, 0, GL_BGR,
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, width, height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, right_data);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, width, height, 0, GL_BGR,
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, width, height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, left_data);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, width, height, 0, GL_BGR,
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, top_data);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB, width, height, 0, GL_BGR,
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, bot_data);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, width, height, 0, GL_BGR,
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, back_data);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB, width, height, 0, GL_BGR,
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, front_data);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
