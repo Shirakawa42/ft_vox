@@ -26,6 +26,7 @@ MapGeneration::MapGeneration()
 
 MapGeneration::MapGeneration(unsigned int seed)
 {
+	this->seed = seed;
 	srand(seed);
 
 	p = new int[512];
@@ -109,4 +110,22 @@ float 	MapGeneration::noise(float x, float y, float z)
 					lerp(u,
 					grad(p[ab + 1], sub_x, sub_y - 1, sub_z - 1),
 					grad(p[bb + 1], sub_x - 1, sub_y - 1, sub_z - 1))));
+}
+
+float	MapGeneration::OctavePerlin(float x, float y, float z, int octaves, float persistence)
+{
+    float total = 0;
+    float frequency = 1;
+    float amplitude = 1;
+    float maxValue = 0;
+    for(int i=0;i<octaves;i++) {
+        total += noise(x * frequency, y * frequency, z * frequency) * amplitude;
+        
+        maxValue += amplitude;
+        
+        amplitude *= persistence;
+        frequency *= 2;
+    }
+    
+    return total/maxValue;
 }

@@ -19,7 +19,7 @@ Player::Player()
 	horizontalAngle = 3.14f;
 	verticalAngle = 0.0f;
 	initialFoV = FOV;
-	speed = 30.0f;
+	speed = 1000.0f;
 	mouseSpeed = 0.05f;
 }
 

@@ -20,28 +20,37 @@ void	ChunkHandler::MapHandler()
 	int		i;
 	int		j;
 	int		k;
+	static int	s = 0;
 
-	i = -VIEW_DISTANCE + g_player.GetPos().x;
-	while (i < VIEW_DISTANCE + g_player.GetPos().x)
+	if (s == 0)
 	{
-		j = -VIEW_DISTANCE + g_player.GetPos().z;
-		while (j < VIEW_DISTANCE + g_player.GetPos().z)
+		i = -VIEW_DISTANCE + g_player.GetPos().x;
+		while (i < VIEW_DISTANCE + g_player.GetPos().x)
 		{
-			x = i - i % CHUNK_XY;
-			y = j - j % CHUNK_XY;
-			if (!CheckIfChunkAtPos(x, y))
-				AddChunkAtPos(x, y);
-			j += CHUNK_XY;
+			j = -VIEW_DISTANCE + g_player.GetPos().z;
+			while (j < VIEW_DISTANCE + g_player.GetPos().z)
+			{
+				x = i - i % CHUNK_XY;
+				y = j - j % CHUNK_XY;
+				if (!CheckIfChunkAtPos(x, y))
+					AddChunkAtPos(x, y);
+				j += CHUNK_XY;
+			}
+			i += CHUNK_XY;
 		}
-		i += CHUNK_XY;
+		std::list<Chunk*>::iterator	it;
+		for (it = enabledChunks.begin(); it != enabledChunks.end(); ++it)
+		{
+			if (!(*it)->isUsable() && (*it)->isGenerated())
+				(*it)->doOpenGLThings();
+		}
+		s++;
 	}
-	std::list<Chunk*>::iterator	it;
-	for (it = enabledChunks.begin(); it != enabledChunks.end(); ++it)
+	else
 	{
-		if (!(*it)->isUsable() && (*it)->isGenerated())
-			(*it)->doOpenGLThings();
+		DisableChunks();
+		s = 0;
 	}
-	DisableChunks();
 }
 
 void	ChunkHandler::DisableChunks()

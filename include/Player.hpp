@@ -1,7 +1,7 @@
 #pragma once
 
 # define FOV 80.0f
-# define VIEW_DISTANCE 250.0f + 32.0f
+# define VIEW_DISTANCE 300.0f + 32.0f
 # define Wscreen 1280
 # define Hscreen 720
 

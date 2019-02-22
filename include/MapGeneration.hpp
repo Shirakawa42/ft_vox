@@ -10,8 +10,9 @@ class MapGeneration
 		MapGeneration();
 		MapGeneration(unsigned int seed);
 		~MapGeneration();
+		unsigned int	seed;
 		float	noise(float x, float y, float z);
+		float	OctavePerlin(float x, float y, float z, int octaves, float persistence);
 	private:
 		int				*p;
-		unsigned int	seed;
 };

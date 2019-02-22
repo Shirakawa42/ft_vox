@@ -60,9 +60,9 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 		while (y < CHUNK_XY)
 		{
 			mutex->lock();
-			p = (*mapgen)->noise((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f);
+			p = (*mapgen)->OctavePerlin((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f, 2, 1.0f);
 			mutex->unlock();
-			power = (int)(20.0f * p) + 128;
+			power = (int)(13.0f * p) + 128;
 			z = 0;
 			while (z < power && z < CHUNK_Z)
 			{
