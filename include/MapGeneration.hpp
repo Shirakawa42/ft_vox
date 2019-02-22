@@ -12,5 +12,6 @@ class MapGeneration
 		~MapGeneration();
 		float	noise(float x, float y, float z);
 	private:
-		int		*p;
+		int				*p;
+		unsigned int	seed;
 };
