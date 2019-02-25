@@ -24,6 +24,10 @@ Chunk::Chunk(glm::vec2 position, int id) : position(position)
 	nb = 0;
 	generated = false;
 	usable = false;
+	left = NULL;
+	right = NULL;
+	front = NULL;
+	back = NULL;
 }
 
 Chunk::~Chunk()
@@ -52,6 +56,9 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 	int		z;
 	int		power;
 	float	p;
+	float	cave;
+	float	height;
+	float	width;
 
 	x = 0;
 	while (x < CHUNK_XY)
@@ -60,7 +67,10 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 		while (y < CHUNK_XY)
 		{
 			mutex->lock();
-			p = (*mapgen)->OctavePerlin((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f, 2, 1.0f);
+			p = (*mapgen)->noise((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f);
+			cave = (*mapgen)->noise((float)(x + this->position.x + 1000) / 30.0f + 0.5f, (float)(y + this->position.y + 1001) / 30.0f + 0.5f, 0.0f);
+			height = 1.0f + (*mapgen)->noise((float)(x + this->position.x + 2000) / 30.0f + 0.5f, (float)(y + this->position.y + 2001) / 30.0f + 0.5f, 0.0f);
+			width = 1.0f + (*mapgen)->noise((float)(x + this->position.x + 3000) / 30.0f + 0.5f, (float)(y + this->position.y + 3001) / 30.0f + 0.5f, 0.0f);
 			mutex->unlock();
 			power = (int)(13.0f * p) + 128;
 			z = 0;
@@ -76,6 +86,11 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 			{
 				chunk[x][y][z] = 0;
 				z++;
+			}
+			if (cave > 0.20f)
+			{
+				for (int q = 0; q < (int)(width * 13.0f + 3.0f); q++)
+					chunk[x][y][(int)(height * 55.0f + 30.0f) + q] = 0;
 			}
 			y++;
 		}
@@ -129,6 +144,45 @@ void	Chunk::doOpenGLThings()
 	setVBO();
 	setIBO();
 	usable = true;
+}
+
+void	Chunk::reloadChunk()
+{
+	int		x;
+	int		y;
+	int		z;
+
+	nbInstances = 0;
+	nb = 0;
+	x = 0;
+	while (x < CHUNK_XY)
+	{
+		y = 0;
+		while (y < CHUNK_XY)
+		{
+			z = 0;
+			while(z < CHUNK_Z)
+			{
+				if (chunk[x][y][z] > 0)
+				{
+					if (isCubeVisible(x, y, z))
+					{
+						translations[nb] = x + this->position.x;
+						translations[nb + 2] = y + this->position.y;
+						translations[nb + 1] = z;
+						cubes[nbInstances] = chunk[x][y][z];
+						nbInstances++;
+						nb += 3;
+					}
+				}
+				z++;
+			}
+			y++;
+		}
+		x++;
+	}
+	setTranslationsO();
+	setCubeO(nbInstances);
 }
 
 void	Chunk::setTranslationsO()
@@ -223,27 +277,44 @@ bool	Chunk::isCubeVisible(int x, int y, int z)
 			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0
 			&& chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
 		return false;
-	if (x == 0 && y > 0 && y < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x + 1][y][z] > 0 
-			&& chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 
-			&& chunk[x][y][z - 1] > 0)
+	if (y == CHUNK_XY-1 && front && front->GetCube(x, 0, z) > 0 && x > 0 && x < CHUNK_XY-1 
+			&& z > 0 && z < CHUNK_Z-1 && chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0
+			&& chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
 		return false;
-	if (x == CHUNK_XY-1 && y > 0 && y < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x - 1][y][z] > 0 
-			&& chunk[x][y + 1][z] > 0 && chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 
-			&& chunk[x][y][z - 1] > 0)
+	if (y == 0 && back && back->GetCube(x, CHUNK_XY-1, z) > 0 && x > 0 && x < CHUNK_XY-1 
+			&& z > 0 && z < CHUNK_Z-1 && chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0
+			&& chunk[x][y + 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
 		return false;
-	if (y == 0 && x > 0 && x < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x][y + 1][z] > 0 
-			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y][z + 1] > 0 
-			&& chunk[x][y][z - 1] > 0)
+	if (x == CHUNK_XY-1 && right && right->GetCube(0, y, z) > 0 && y > 0 && y < CHUNK_XY-1 
+			&& z > 0 && z < CHUNK_Z-1 && chunk[x][y - 1][z] > 0 && chunk[x - 1][y][z] > 0
+			&& chunk[x][y + 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
 		return false;
-	if (y == CHUNK_XY-1 && x > 0 && x < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1 && chunk[x][y - 1][z] > 0 
-			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y][z + 1] > 0 
-			&& chunk[x][y][z - 1] > 0)
+	if (x == 0 && left && left->GetCube(CHUNK_XY-1, y, z) > 0 && y > 0 && y < CHUNK_XY-1 
+			&& z > 0 && z < CHUNK_Z-1 && chunk[x][y - 1][z] > 0 && chunk[x + 1][y][z] > 0
+			&& chunk[x][y + 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
 		return false;
-	if (z == 0 && x > 0 && x < CHUNK_XY-1 && y > 0 && y < CHUNK_XY-1 && chunk[x][y][z + 1] > 0
-			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0
-			&& chunk[x][y - 1][z] > 0)
+	if (x == 0 && y == 0 && left && back && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
+			&& chunk[x + 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && left->GetCube(CHUNK_XY-1, y, z) > 0
+			&& back->GetCube(x, CHUNK_XY-1, z) > 0)
+		return false;
+	if (x == CHUNK_XY-1 && y == CHUNK_XY-1 && right && front && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
+			&& chunk[x - 1][y][z] > 0 && chunk[x][y - 1][z] > 0 && right->GetCube(0, y, z) > 0
+			&& front->GetCube(x, 0, z) > 0)
+		return false;
+	if (x == CHUNK_XY-1 && y == 0 && right && back && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
+			&& chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && right->GetCube(0, y, z) > 0
+			&& back->GetCube(x, CHUNK_XY-1, z) > 0)
+		return false;
+	if (x == 0 && y == CHUNK_XY-1 && left && front && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
+			&& chunk[x + 1][y][z] > 0 && chunk[x][y - 1][z] > 0 && left->GetCube(CHUNK_XY-1, y, z) > 0
+			&& front->GetCube(x, 0, z) > 0)
 		return false;
 	return true;
+}
+
+unsigned char	Chunk::GetCube(int x, int y, int z)
+{
+	return chunk[x][y][z];
 }
 
 glm::vec2	Chunk::GetPos()

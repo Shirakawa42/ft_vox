@@ -1,10 +1,8 @@
 #pragma once
 
-# define MAX_LOADED_CHUNKS 200000
-
 #include "Chunk.hpp"
 #include <vector>
-#include <list>
+#include <map>
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -20,14 +18,15 @@ class ChunkHandler
 		void				MapHandler();
 		void				LoadChunks();
 	private:
-		std::list<Chunk*>			enabledChunks;
-		std::list<Chunk*>			disabledChunks;
+		std::map<int, Chunk*>			enabledChunks;
+		std::map<int, Chunk*>			disabledChunks;
 		MapGeneration				*mapgen;
 		Chunk						*GenerateChunk(int x, int y);
 		void						GenerateChunks();
 		void						AddChunkAtPos(int x, int y);
 		bool						CheckIfChunkAtPos(int x, int y);
 		void						DisableChunks();
+		void						RemoveFarChunks();
 		std::thread					*t;
 		std::mutex					mutex;
 };

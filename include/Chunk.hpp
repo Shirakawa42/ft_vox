@@ -8,7 +8,7 @@
 #include "Player.hpp"
 #include <mutex>
 
-# define CHUNK_XY 64
+# define CHUNK_XY 16
 # define CHUNK_Z 256
 # define CHUNK_SIZE CHUNK_XY*CHUNK_XY*CHUNK_Z
 
@@ -30,7 +30,13 @@ class Chunk
 		bool			isGenerated();
 		bool			isUsable();
 		void			doOpenGLThings();
+		void			reloadChunk();
+		unsigned char	GetCube(int x, int y, int z);
 		int				id;
+		Chunk			*left;
+		Chunk			*right;
+		Chunk			*front;
+		Chunk			*back;
 	private:
 		bool			usable;
 		bool			generated;
