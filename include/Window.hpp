@@ -31,8 +31,12 @@ class Window
 		GLuint			SkyboxViewID;
 		GLuint			grassID;
 		GLuint			stoneID;
+		GLuint			sandID;
+		GLuint			waterID;
 		GLuint			skyboxID;
 		GLuint			grass;
 		GLuint			stone;
+		GLuint			sand;
+		GLuint			water;
 		GLuint			skybox;
 };

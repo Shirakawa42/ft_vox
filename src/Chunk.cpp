@@ -51,14 +51,16 @@ Chunk::~Chunk()
 
 void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 {
-	int		x;
-	int		y;
-	int		z;
-	int		power;
-	float	p;
-	float	cave;
-	float	height;
-	float	width;
+	int				x;
+	int				y;
+	int				z;
+	int				power;
+	float			p;
+	float			cave;
+	float			height;
+	float			width;
+	float			biome;
+	unsigned char	cube;
 
 	x = 0;
 	while (x < CHUNK_XY)
@@ -67,7 +69,29 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 		while (y < CHUNK_XY)
 		{
 			mutex->lock();
-			p = (*mapgen)->noise((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f);
+			biome = (*mapgen)->noise((float)(x + this->position.x) / 350.0f + 0.5f, (float)(y + this->position.y) / 350.0f + 0.5f, 0.0f);
+			if (biome < 0.0f)
+			{
+				p = (*mapgen)->OctavePerlin((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f, 2, 1.0f);
+				cube = GRASS;
+			}
+			else if (biome >= 0.00f && biome < 0.20f)
+			{
+				p = (*mapgen)->OctavePerlin((float)(x + this->position.x) / 30.0f + 0.5f, (float)(y + this->position.y) / 30.0f + 0.5f, 0.0f, 2, 1.0f);
+				cube = SAND;
+			}
+			else
+			{
+				p = ((*mapgen)->OctavePerlin((float)(x + this->position.x) / 60.0f + 0.5f, (float)(y + this->position.y) / 60.0f + 0.5f, 0.0f, 2, 220.0f) + 0.25f) * 3.0f;
+				cube = GRASS;
+				if (p < 0.15f && p >= -0.10f)
+					cube = SAND;
+				else if (p < -0.10f)
+				{
+					cube = WATER;
+					p = -0.10f;
+				}
+			}
 			cave = (*mapgen)->noise((float)(x + this->position.x + 1000) / 30.0f + 0.5f, (float)(y + this->position.y + 1001) / 30.0f + 0.5f, 0.0f);
 			height = 1.0f + (*mapgen)->noise((float)(x + this->position.x + 2000) / 30.0f + 0.5f, (float)(y + this->position.y + 2001) / 30.0f + 0.5f, 0.0f);
 			width = 1.0f + (*mapgen)->noise((float)(x + this->position.x + 3000) / 30.0f + 0.5f, (float)(y + this->position.y + 3001) / 30.0f + 0.5f, 0.0f);
@@ -77,20 +101,20 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 			while (z < power && z < CHUNK_Z)
 			{
 				if (z != power - 1)
-					chunk[x][y][z] = 2;
+					chunk[x][y][z] = STONE;
 				else
-					chunk[x][y][z] = 1;
+					chunk[x][y][z] = cube;
 				z++;
 			}
 			while (z < CHUNK_Z)
 			{
-				chunk[x][y][z] = 0;
+				chunk[x][y][z] = AIR;
 				z++;
 			}
 			if (cave > 0.20f)
 			{
 				for (int q = 0; q < (int)(width * 13.0f + 3.0f); q++)
-					chunk[x][y][(int)(height * 55.0f + 30.0f) + q] = 0;
+					chunk[x][y][(int)(height * 55.0f + 30.0f) + q] = AIR;
 			}
 			y++;
 		}

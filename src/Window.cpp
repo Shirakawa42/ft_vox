@@ -60,6 +60,8 @@ void	Window::init()
 	MatrixID = glGetUniformLocation(programID, "MVP");
 	grassID = glGetUniformLocation(programID, "grass");
 	stoneID = glGetUniformLocation(programID, "stone");
+	sandID = glGetUniformLocation(programID, "sand");
+	waterID = glGetUniformLocation(programID, "water");
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -154,6 +156,8 @@ void	Window::loop(bool is_seed, unsigned int seed)
 	grass = texture.load_cubemap((char*)"texture/grass_top.bmp", (char*)"texture/grass_side.bmp", (char*)"texture/dirt.bmp");
 	stone = texture.load_cubemap((char*)"texture/stone.bmp", (char*)"texture/stone.bmp", (char*)"texture/stone.bmp");
 	skybox = texture.load_skybox((char*)"texture/top.jpg", (char*)"texture/left.jpg", (char*)"texture/right.jpg", (char*)"texture/back.jpg", (char*)"texture/front.jpg", (char*)"texture/bottom.jpg");
+	sand = texture.load_skybox((char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg");
+	water = texture.load_skybox((char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg");
 
 	glEnable(GL_CULL_FACE); 
 
@@ -184,10 +188,16 @@ void	Window::loop(bool is_seed, unsigned int seed)
 
 		glUniform1i(grassID, 0);
 		glUniform1i(stoneID, 1);
+		glUniform1i(sandID, 2);
+		glUniform1i(waterID, 3);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, grass);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, stone);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, sand);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, water);
 
 		duration[0] += glfwGetTime() - tmp_time;
 		total += glfwGetTime() - tmp_time;

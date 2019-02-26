@@ -11,6 +11,11 @@
 # define CHUNK_XY 16
 # define CHUNK_Z 256
 # define CHUNK_SIZE CHUNK_XY*CHUNK_XY*CHUNK_Z
+# define AIR 0
+# define GRASS 1
+# define STONE 2
+# define SAND 3
+# define WATER 4
 
 class Chunk
 {
