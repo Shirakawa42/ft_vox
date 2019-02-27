@@ -297,41 +297,17 @@ void	Chunk::calcVertices()
 
 bool	Chunk::isCubeVisible(int x, int y, int z)
 {
-	if (x > 0 && x < CHUNK_XY-1 && y > 0 && y < CHUNK_XY-1 && z > 0 && z < CHUNK_Z-1
-			&& chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0
-			&& chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
-		return false;
-	if (y == CHUNK_XY-1 && front && front->GetCube(x, 0, z) > 0 && x > 0 && x < CHUNK_XY-1 
-			&& z > 0 && z < CHUNK_Z-1 && chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0
-			&& chunk[x][y - 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
-		return false;
-	if (y == 0 && back && back->GetCube(x, CHUNK_XY-1, z) > 0 && x > 0 && x < CHUNK_XY-1 
-			&& z > 0 && z < CHUNK_Z-1 && chunk[x + 1][y][z] > 0 && chunk[x - 1][y][z] > 0
-			&& chunk[x][y + 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
-		return false;
-	if (x == CHUNK_XY-1 && right && right->GetCube(0, y, z) > 0 && y > 0 && y < CHUNK_XY-1 
-			&& z > 0 && z < CHUNK_Z-1 && chunk[x][y - 1][z] > 0 && chunk[x - 1][y][z] > 0
-			&& chunk[x][y + 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
-		return false;
-	if (x == 0 && left && left->GetCube(CHUNK_XY-1, y, z) > 0 && y > 0 && y < CHUNK_XY-1 
-			&& z > 0 && z < CHUNK_Z-1 && chunk[x][y - 1][z] > 0 && chunk[x + 1][y][z] > 0
-			&& chunk[x][y + 1][z] > 0 && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0)
-		return false;
-	if (x == 0 && y == 0 && left && back && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
-			&& chunk[x + 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && left->GetCube(CHUNK_XY-1, y, z) > 0
-			&& back->GetCube(x, CHUNK_XY-1, z) > 0)
-		return false;
-	if (x == CHUNK_XY-1 && y == CHUNK_XY-1 && right && front && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
-			&& chunk[x - 1][y][z] > 0 && chunk[x][y - 1][z] > 0 && right->GetCube(0, y, z) > 0
-			&& front->GetCube(x, 0, z) > 0)
-		return false;
-	if (x == CHUNK_XY-1 && y == 0 && right && back && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
-			&& chunk[x - 1][y][z] > 0 && chunk[x][y + 1][z] > 0 && right->GetCube(0, y, z) > 0
-			&& back->GetCube(x, CHUNK_XY-1, z) > 0)
-		return false;
-	if (x == 0 && y == CHUNK_XY-1 && left && front && chunk[x][y][z + 1] > 0 && chunk[x][y][z - 1] > 0
-			&& chunk[x + 1][y][z] > 0 && chunk[x][y - 1][z] > 0 && left->GetCube(CHUNK_XY-1, y, z) > 0
-			&& front->GetCube(x, 0, z) > 0)
+	if (z > 0 && z < CHUNK_Z-1
+			&& (right || x < CHUNK_XY-1)
+			&& (left || x > 0)
+			&& (front || y < CHUNK_XY-1)
+			&& (back || y > 0)
+			&& ((x < CHUNK_XY-1) ? chunk[x + 1][y][z] : right->GetCube(0, y, z)) > 0
+			&& ((x > 0) ? chunk[x - 1][y][z] : left->GetCube(CHUNK_XY-1, y, z)) > 0
+			&& ((y < CHUNK_XY-1) ? chunk[x][y + 1][z] : front->GetCube(x, 0, z)) > 0
+			&& ((y > 0) ? chunk[x][y - 1][z] : back->GetCube(x, CHUNK_XY-1, z)) > 0
+			&& chunk[x][y][z + 1] > 0
+			&& chunk[x][y][z - 1] > 0)
 		return false;
 	return true;
 }
