@@ -54,8 +54,8 @@ void	Window::init()
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
 	
-	programID = s.create_program(s.create_shader((char*)"shaders/vertex.glsl",
-			GL_VERTEX_SHADER), s.create_shader((char*)"shaders/fragment.glsl",
+	programID = s.create_program(s.create_shader((char*)"../shaders/vertex.glsl",
+			GL_VERTEX_SHADER), s.create_shader((char*)"../shaders/fragment.glsl",
 			GL_FRAGMENT_SHADER));
 	MatrixID = glGetUniformLocation(programID, "MVP");
 	grassID = glGetUniformLocation(programID, "grass");
@@ -114,8 +114,8 @@ void	Window::create_skybox()
 	glGenVertexArrays(1, &skyboxVaoID);
 	glBindVertexArray(skyboxVaoID);
 	
-	skybox_programID = s.create_program(s.create_shader((char*)"shaders/v_skybox.glsl",
-			GL_VERTEX_SHADER), s.create_shader((char*)"shaders/f_skybox.glsl",
+	skybox_programID = s.create_program(s.create_shader((char*)"../shaders/v_skybox.glsl",
+			GL_VERTEX_SHADER), s.create_shader((char*)"../shaders/f_skybox.glsl",
 			GL_FRAGMENT_SHADER));
 	
 	glGenBuffers(1, &skyboxVBO);
@@ -153,11 +153,11 @@ void	Window::loop(bool is_seed, unsigned int seed)
 {
 	ChunkHandler		chunkHandler(is_seed, seed);
 
-	grass = texture.load_cubemap((char*)"texture/grass_top.bmp", (char*)"texture/grass_side.bmp", (char*)"texture/dirt.bmp");
-	stone = texture.load_cubemap((char*)"texture/stone.bmp", (char*)"texture/stone.bmp", (char*)"texture/stone.bmp");
-	skybox = texture.load_skybox((char*)"texture/top.jpg", (char*)"texture/left.jpg", (char*)"texture/right.jpg", (char*)"texture/back.jpg", (char*)"texture/front.jpg", (char*)"texture/bottom.jpg");
-	sand = texture.load_skybox((char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg", (char*)"texture/sand.jpg");
-	water = texture.load_skybox((char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg", (char*)"texture/water.jpg");
+	grass = texture.load_cubemap((char*)"../texture/grass_top.bmp", (char*)"../texture/grass_side.bmp", (char*)"../texture/dirt.bmp");
+	stone = texture.load_cubemap((char*)"../texture/stone.bmp", (char*)"../texture/stone.bmp", (char*)"../texture/stone.bmp");
+	skybox = texture.load_skybox((char*)"../texture/top.jpg", (char*)"../texture/left.jpg", (char*)"../texture/right.jpg", (char*)"../texture/back.jpg", (char*)"../texture/front.jpg", (char*)"../texture/bottom.jpg");
+	sand = texture.load_skybox((char*)"../texture/sand.jpg", (char*)"../texture/sand.jpg", (char*)"../texture/sand.jpg", (char*)"../texture/sand.jpg", (char*)"../texture/sand.jpg", (char*)"../texture/sand.jpg");
+	water = texture.load_skybox((char*)"../texture/water.jpg", (char*)"../texture/water.jpg", (char*)"../texture/water.jpg", (char*)"../texture/water.jpg", (char*)"../texture/water.jpg", (char*)"../texture/water.jpg");
 
 	glEnable(GL_CULL_FACE); 
 

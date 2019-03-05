@@ -19,7 +19,6 @@ void	ChunkHandler::MapHandler()
 	int		y;
 	int		i;
 	int		j;
-	int		k;
 
 	i = -VIEW_DISTANCE + g_player.GetPos().x - CHUNK_XY*4;
 	while (i < VIEW_DISTANCE + g_player.GetPos().x)
@@ -133,7 +132,7 @@ void	ChunkHandler::LoadChunks()
 	}
 }
 
-static void		generateChunk(Chunk **chunk, std::mutex *mutex, MapGeneration **map)
+void		generateChunk(Chunk **chunk, std::mutex *mutex, MapGeneration **map)
 {
 	(*chunk)->generate(map, mutex);
 }
@@ -146,8 +145,9 @@ void	ChunkHandler::AddChunkAtPos(int x, int y)
 	chunk = new Chunk(glm::vec2(x, y), id);
 	id++;
 	enabledChunks.insert(std::pair<int, Chunk*>(GetPosIndex(x, y), chunk));
-	t = new std::thread(generateChunk, &(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
-	t->detach();
+	//t = new std::thread(generateChunk, &(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
+	//t->detach();
+	generateChunk((&(*(enabledChunks.find(GetPosIndex(x, y)))).second), &mutex, &mapgen);
 	std::cout << "Chunk called ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 }
 

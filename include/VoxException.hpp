@@ -8,7 +8,7 @@ class 	VoxException : public std::exception
 	public:
 		VoxException() {}
 		VoxException(std::string error) : _error(error) {}
-		virtual ~VoxException() {}
+		virtual ~VoxException() throw() {}
 		virtual const char *what() const throw ()
 		{
 			return _error.c_str();

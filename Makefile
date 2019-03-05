@@ -6,7 +6,7 @@
 #    By: lvasseur <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/02/22 13:30:54 by lvasseur          #+#    #+#              #
-#    Updated: 2018/11/30 16:18:58 by lvasseur         ###   ########.fr        #
+#    Updated: 2019/03/05 13:52:04 by lvasseur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,15 +17,14 @@ CC = clang++
 
 SRC_PATH = ./src/
 OBJ_PATH = ./obj/
-LIB_PATH = ./lib/
 INC_PATH = ./include/
+LIB_PATH = ./
 
 GCC_FLGS = #-Wall -Wextra -Werror
-GCC_LIBS = -g -lglfw -lGLEW -lGL -lGLU -lX11 -lXxf86vm -lXrandr -lXi -ldl -lpthread -lXinerama -lXcursor -lm
-
+GCC_LIBS = -std=c++11 -lpthread -lglfw3 -framework AppKit -framework OpenGL -framework IOKit -framework CoreVideo -lm -lglew
 SRC_NAME = main.cpp ChunkHandler.cpp Chunk.cpp Player.cpp Window.cpp shaders.cpp Texture.cpp MapGeneration.cpp FrustumCulling.cpp
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
-LIB_NAME =
+LIB_NAME = glfw/src
 
 SRC = $(addprefix $(SRC_PATH), $(SRC_NAME))
 OBJ = $(addprefix $(OBJ_PATH), $(OBJ_NAME))
