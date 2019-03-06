@@ -205,6 +205,10 @@ void	Chunk::reloadChunk()
 		}
 		x++;
 	}
+	glDeleteBuffers(1, &translationsID);
+	glDeleteBuffers(1, &cubeID);
+	glGenBuffers(1, &translationsID);
+	glGenBuffers(1, &cubeID);
 	setTranslationsO();
 	setCubeO(nbInstances);
 }
