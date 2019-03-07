@@ -111,7 +111,7 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 				chunk[x][y][z] = AIR;
 				z++;
 			}
-			if (cave > 0.20f)
+			if (cave > 0.40f)
 			{
 				for (int q = 0; q < (int)(width * 13.0f + 3.0f); q++)
 					chunk[x][y][(int)(height * 55.0f + 30.0f) + q] = AIR;
@@ -176,6 +176,7 @@ void	Chunk::reloadChunk()
 	int		y;
 	int		z;
 
+	std::cout << "avant: " << nbInstances << std::endl;
 	nbInstances = 0;
 	nb = 0;
 	x = 0;
@@ -211,6 +212,7 @@ void	Chunk::reloadChunk()
 	glGenBuffers(1, &cubeID);
 	setTranslationsO();
 	setCubeO(nbInstances);
+	std::cout << "apres: " << nbInstances << std::endl;
 }
 
 void	Chunk::setTranslationsO()
@@ -301,17 +303,40 @@ void	Chunk::calcVertices()
 
 bool	Chunk::isCubeVisible(int x, int y, int z)
 {
-	if (z > 0 && z < CHUNK_Z-1
-			&& (right || x < CHUNK_XY-1)
-			&& (left || x > 0)
-			&& (front || y < CHUNK_XY-1)
-			&& (back || y > 0)
-			&& ((x < CHUNK_XY-1) ? chunk[x + 1][y][z] : right->GetCube(0, y, z)) > 0
-			&& ((x > 0) ? chunk[x - 1][y][z] : left->GetCube(CHUNK_XY-1, y, z)) > 0
-			&& ((y < CHUNK_XY-1) ? chunk[x][y + 1][z] : front->GetCube(x, 0, z)) > 0
-			&& ((y > 0) ? chunk[x][y - 1][z] : back->GetCube(x, CHUNK_XY-1, z)) > 0
-			&& chunk[x][y][z + 1] > 0
-			&& chunk[x][y][z - 1] > 0)
+	int		nbSide;
+
+	nbSide = 0;
+	if (z == 0 || z == CHUNK_Z-1)
+		return true;
+	if (x == 0 && !left)
+		return true;
+	if (x == CHUNK_XY-1 && !right)
+		return true;
+	if (y == 0 && !back)
+		return true;
+	if (y == CHUNK_XY-1 && !front)
+		return true;
+	if (z < CHUNK_Z-1 && chunk[x][y][z + 1] > 0) // haut
+		nbSide++;
+	if (z > 0 && chunk[x][y][z - 1] > 0) // bas
+		nbSide++;
+	if (x > 0 && chunk[x - 1][y][z] > 0) // left 1
+		nbSide++;
+	if (x < CHUNK_XY-1 && chunk[x + 1][y][z] > 0) // right 1
+		nbSide++;
+	if (y > 0 && chunk[x][y - 1][z] > 0) // back 1
+		nbSide++;
+	if (y < CHUNK_XY-1 && chunk[x][y + 1][z] > 0) // front 1
+		nbSide++;
+	if (x == 0 && left && left->GetCube(CHUNK_XY-1, y, z) > 0) // left 2
+		nbSide++;
+	if (x == CHUNK_XY-1 && right && right->GetCube(0, y, z) > 0) // right 2
+		nbSide++;
+	if (y == 0 && front && front->GetCube(x, CHUNK_XY-1, z) > 0) // back 2
+		nbSide++;
+	if (y == CHUNK_XY-1 && back && back->GetCube(x, 0, z) > 0) // front 2
+		nbSide++;
+	if (nbSide == 6)
 		return false;
 	return true;
 }

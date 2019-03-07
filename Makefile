@@ -6,7 +6,7 @@
 #    By: lvasseur <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/02/22 13:30:54 by lvasseur          #+#    #+#              #
-#    Updated: 2019/03/05 13:52:04 by lvasseur         ###   ########.fr        #
+#    Updated: 2019/03/07 15:05:19 by lvasseur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,7 +38,7 @@ $(NAME): $(OBJ)
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 	mkdir -p $(OBJ_PATH)
-	$(CC) $(GCC_FLGS) $(INC) -o $@ -c $<
+	$(CC) $(GCC_FLGS) -std=c++11 $(INC) -o $@ -c $<
 
 clean:
 	rm -fv $(OBJ)

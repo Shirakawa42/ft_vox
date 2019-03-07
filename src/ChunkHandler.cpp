@@ -145,9 +145,8 @@ void	ChunkHandler::AddChunkAtPos(int x, int y)
 	chunk = new Chunk(glm::vec2(x, y), id);
 	id++;
 	enabledChunks.insert(std::pair<int, Chunk*>(GetPosIndex(x, y), chunk));
-	//t = new std::thread(generateChunk, &(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
-	//t->detach();
-	generateChunk((&(*(enabledChunks.find(GetPosIndex(x, y)))).second), &mutex, &mapgen);
+	t = new std::thread(generateChunk, &(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
+	t->detach();
 	std::cout << "Chunk called ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 }
 

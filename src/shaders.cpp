@@ -6,7 +6,7 @@
 /*   By: lvasseur <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/22 15:28:07 by lvasseur          #+#    #+#             */
-/*   Updated: 2018/11/30 14:03:34 by lvasseur         ###   ########.fr       */
+/*   Updated: 2019/03/07 13:58:08 by lvasseur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,10 @@ char		*shaders::load_file(char *filename)
 
 	file = strnew(BUFF_SIZE);
 	if ((fd = open(filename, O_RDONLY)) == -1)
+	{
+		std::cout << "Failed to get a fd" << std::endl;
 		exit(0);
+	}
 	while ((r = read(fd, buf, BUFF_SIZE)))
 	{
 		buf[r] = '\0';
