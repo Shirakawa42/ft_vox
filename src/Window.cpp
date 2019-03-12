@@ -29,6 +29,7 @@ void	Window::handleTime()
 		std::cout << "FPS: " << fps << std::endl;
 		fpstime -= 1.0f;
 		fps = 0;
+		std::cout << g_player.GetPos().x << " " << g_player.GetPos().z << std::endl;
 	}
 }
 

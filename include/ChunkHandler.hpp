@@ -27,6 +27,8 @@ class ChunkHandler
 		bool						CheckIfChunkAtPos(int x, int y);
 		void						DisableChunks();
 		void						RemoveFarChunks();
+		Chunk						*GetChunkAtPos(int x, int y);
+		void						CheckNeigbors(Chunk *chunk);
 		std::thread					*t;
 		std::mutex					mutex;
 };

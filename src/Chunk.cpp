@@ -28,6 +28,7 @@ Chunk::Chunk(glm::vec2 position, int id) : position(position)
 	right = NULL;
 	front = NULL;
 	back = NULL;
+	reloaded = false;
 }
 
 Chunk::~Chunk()
@@ -176,7 +177,6 @@ void	Chunk::reloadChunk()
 	int		y;
 	int		z;
 
-	std::cout << "avant: " << nbInstances << std::endl;
 	nbInstances = 0;
 	nb = 0;
 	x = 0;
@@ -212,7 +212,7 @@ void	Chunk::reloadChunk()
 	glGenBuffers(1, &cubeID);
 	setTranslationsO();
 	setCubeO(nbInstances);
-	std::cout << "apres: " << nbInstances << std::endl;
+	reloaded = true;
 }
 
 void	Chunk::setTranslationsO()
@@ -389,4 +389,20 @@ void		Chunk::Enable()
 void		Chunk::Disable()
 {
 	enabled = false;
+}
+
+bool		Chunk::HasFourNeigbors()
+{
+	if (left && right && front && back)
+	{
+		if (!reloaded)
+			reloadChunk();
+		return true;
+	}
+	return false;
+}
+
+int			Chunk::GetID()
+{
+	return id;
 }

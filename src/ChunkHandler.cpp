@@ -43,12 +43,33 @@ void	ChunkHandler::MapHandler()
 
 static int	GetPosIndex(int x, int y)
 {
-	return ((x * 10000 + 10000) + (y * 666 + 666));
+	int xx = (x >= 0) ? (x * 2) : (-x * 2 - 1);
+	int yy = (y >= 0) ? (y * 2) : (-y * 2 - 1);
+
+	return ((xx + yy) * (xx + yy + 1))/2 + yy;
 }
 
 static int	GetPosIndex(glm::vec2 pos)
 {
-	return ((pos.x * 10000 + 10000) + (pos.y * 666 + 666));
+	return GetPosIndex(pos.x, pos.y);
+}
+
+void	ChunkHandler::CheckNeigbors(Chunk *chunk)
+{
+	Chunk	*neighbor;
+
+	if ((neighbor = GetChunkAtPos((chunk->GetPos() + glm::vec2(CHUNK_XY, 0)).x,
+			(chunk->GetPos() + glm::vec2(CHUNK_XY, 0)).y)) != NULL)
+		neighbor->left = chunk;
+	if ((neighbor = GetChunkAtPos((chunk->GetPos() + glm::vec2(-CHUNK_XY, 0)).x,
+			(chunk->GetPos() + glm::vec2(-CHUNK_XY, 0)).y)) != NULL)
+		neighbor->right = chunk;
+	if ((neighbor = GetChunkAtPos((chunk->GetPos() + glm::vec2(0, CHUNK_XY)).x,
+			(chunk->GetPos() + glm::vec2(0, CHUNK_XY)).y)) != NULL)
+		neighbor->front = chunk;
+	if ((neighbor = GetChunkAtPos((chunk->GetPos() + glm::vec2(0, -CHUNK_XY)).x,
+			(chunk->GetPos() + glm::vec2(0, -CHUNK_XY)).y)) != NULL)
+		neighbor->back = chunk;
 }
 
 void	ChunkHandler::DisableChunks()
@@ -56,44 +77,16 @@ void	ChunkHandler::DisableChunks()
 	Chunk	*chunk;
 	std::map<int, Chunk*>::iterator	it = enabledChunks.begin();
 	std::map<int, Chunk*>::iterator tmp;
-	bool							reload;
 
 	while (it != enabledChunks.end() && (chunk = (*it).second))
 	{
 		if (!chunk->isUsable() && chunk->isGenerated())
-			chunk->doOpenGLThings();
-		reload = false;
-		if (chunk->isUsable())
 		{
-			if (chunk->front == NULL && (tmp = enabledChunks.find(GetPosIndex(chunk->GetPos() + glm::vec2(0, -CHUNK_XY)))) != enabledChunks.end())
-			{
-				chunk->front = (*tmp).second;
-				reload = true;
-			}
-			if (chunk->back == NULL && (tmp = enabledChunks.find(GetPosIndex(chunk->GetPos() + glm::vec2(0, CHUNK_XY)))) != enabledChunks.end())
-			{
-				chunk->back = (*tmp).second;
-				reload = true;
-			}
-			if (chunk->right == NULL && (tmp = enabledChunks.find(GetPosIndex(chunk->GetPos() + glm::vec2(CHUNK_XY, 0)))) != enabledChunks.end())
-			{
-				chunk->right = (*tmp).second;
-				reload = true;
-			}
-			if (chunk->left == NULL && (tmp = enabledChunks.find(GetPosIndex(chunk->GetPos() + glm::vec2(-CHUNK_XY, 0)))) != enabledChunks.end())
-			{
-				chunk->left = (*tmp).second;
-				reload = true;
-			}
-			if (reload)
-			{
-				std::cout << "reloading !" << std::endl;
-				chunk->reloadChunk();
-			}
+			chunk->doOpenGLThings();
+			CheckNeigbors(chunk);
 		}
 		if (chunk->isUsable() && glm::distance(chunk->GetPos() + glm::vec2(CHUNK_XY/2, CHUNK_XY/2), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > VIEW_DISTANCE)
 		{
-			std::cout << "disabling" << std::endl;
 			chunk->Disable();
 			disabledChunks.insert(std::pair<int, Chunk*>(GetPosIndex(chunk->GetPos()), chunk));
 			enabledChunks.erase(it);
@@ -111,7 +104,7 @@ void	ChunkHandler::LoadChunks()
 
 	while (it != enabledChunks.end() && (current = (*it).second))
 	{
-		if (current->isUsable() && g_player.frustum->pointIn(glm::vec3(current->GetPos().x + CHUNK_XY/2, CHUNK_Z/2, current->GetPos().y + CHUNK_XY/2)))
+		if (current->isUsable() && current->HasFourNeigbors() && g_player.frustum->pointIn(glm::vec3(current->GetPos().x + CHUNK_XY/2, CHUNK_Z/2, current->GetPos().y + CHUNK_XY/2)))
 		{
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, current->GetVBOID());
@@ -128,6 +121,8 @@ void	ChunkHandler::LoadChunks()
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, current->GetIBOID());
 			glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, current->GetNbInstances());
 		}
+		else if (current->isUsable() && !current->HasFourNeigbors())
+			CheckNeigbors(current);
 		it++;
 	}
 }
@@ -162,7 +157,6 @@ void	ChunkHandler::RemoveFarChunks()
 			disabledChunks.erase(it);
 			delete(chunk);
 			it = disabledChunks.begin();
-			std::cout << "removing chunk" << std::endl;
 		}
 		else
 			it++;
@@ -180,7 +174,6 @@ bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
 	it = disabledChunks.find(GetPosIndex(x, y));
 	if (it != disabledChunks.end())
 	{
-		std::cout << "enabling" << std::endl;
 		chunk = (*it).second;
 		chunk->Enable();
 		enabledChunks.insert(std::pair<int, Chunk*>(GetPosIndex(chunk->GetPos()), chunk));
@@ -188,4 +181,17 @@ bool	ChunkHandler::CheckIfChunkAtPos(int x, int y)
 		return true;
 	}
 	return false;
+}
+
+Chunk	*ChunkHandler::GetChunkAtPos(int x, int y)
+{
+	std::map<int, Chunk*>::iterator it;
+
+	it = enabledChunks.find(GetPosIndex(x, y));
+	if (it != enabledChunks.end())
+		return (*it).second;
+	it = disabledChunks.find(GetPosIndex(x, y));
+	if (it != disabledChunks.end())
+		return (*it).second;
+	return NULL;
 }

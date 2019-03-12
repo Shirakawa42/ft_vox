@@ -35,15 +35,18 @@ class Chunk
 		bool			isGenerated();
 		bool			isUsable();
 		void			doOpenGLThings();
-		void			reloadChunk();
 		unsigned char	GetCube(int x, int y, int z);
-		int				id;
+		bool			HasFourNeigbors();
 		Chunk			*left;
 		Chunk			*right;
 		Chunk			*front;
 		Chunk			*back;
+		int				GetID();
 	private:
+		int				id;
+		void			reloadChunk();
 		bool			usable;
+		bool			reloaded;
 		bool			generated;
 		bool			enabled;
 		GLuint			vboID;
