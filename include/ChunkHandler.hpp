@@ -18,8 +18,8 @@ class ChunkHandler
 		void				MapHandler();
 		void				LoadChunks();
 	private:
-		std::map<int, Chunk*>			enabledChunks;
-		std::map<int, Chunk*>			disabledChunks;
+		std::map<std::string, Chunk*>			enabledChunks;
+		std::map<std::string, Chunk*>			disabledChunks;
 		MapGeneration				*mapgen;
 		Chunk						*GenerateChunk(int x, int y);
 		void						GenerateChunks();
@@ -29,6 +29,7 @@ class ChunkHandler
 		void						RemoveFarChunks();
 		Chunk						*GetChunkAtPos(int x, int y);
 		void						CheckNeigbors(Chunk *chunk);
+		void						debugChunkHole();
 		std::thread					*t;
 		std::mutex					mutex;
 };
