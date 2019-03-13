@@ -46,6 +46,9 @@ GLuint	Texture::load_cubemap(char *top_name, char *side_name, char *bot_name)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	free(top_data);
+	free(bot_data);
+	free(side_data);
 	return texture_id;
 }
 
@@ -87,6 +90,12 @@ GLuint	Texture::load_skybox(char *top_name, char *left_name, char *right_name, c
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	free(top_data);
+	free(right_data);
+	free(left_data);
+	free(front_data);
+	free(back_data);
+	free(bot_data);
 	return texture_id;
 }
 

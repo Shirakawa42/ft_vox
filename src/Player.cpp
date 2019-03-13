@@ -19,13 +19,13 @@ Player::Player()
 	horizontalAngle = 3.14f;
 	verticalAngle = 0.0f;
 	initialFoV = FOV;
-	speed = 60.0f;
+	speed = 40.0f;
 	mouseSpeed = 0.05f;
 }
 
 Player::~Player()
 {
-
+	delete(frustum);
 }
 
 void	Player::mouseControl(GLFWwindow *window)

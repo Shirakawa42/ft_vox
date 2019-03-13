@@ -43,7 +43,7 @@ void	ChunkHandler::MapHandler()
 
 static std::string	GetPosIndex(int x, int y)
 {
-	return std::string(std::to_string(x) + std::to_string(y));
+	return std::string(std::to_string(x) + " " + std::to_string(y));
 }
 
 static std::string	GetPosIndex(glm::vec2 pos)
@@ -121,10 +121,10 @@ void	ChunkHandler::DisableChunks()
 	{
 		if (!chunk->isUsable() && chunk->isGenerated())
 		{
-			chunk->doOpenGLThings();
 			CheckNeigbors(chunk);
+			chunk->HasFourNeigbors();
 		}
-		if (chunk->isUsable() && glm::distance(chunk->GetPos() + glm::vec2(CHUNK_XY/2, CHUNK_XY/2), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > VIEW_DISTANCE)
+		if (chunk->isGenerated() && glm::distance(chunk->GetPos() + glm::vec2(CHUNK_XY/2, CHUNK_XY/2), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > VIEW_DISTANCE)
 		{
 			chunk->Disable();
 			disabledChunks.insert(std::pair<std::string, Chunk*>(GetPosIndex(chunk->GetPos()), chunk));
@@ -160,11 +160,9 @@ void	ChunkHandler::LoadChunks()
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, current->GetIBOID());
 			glDrawElementsInstanced(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, NULL, current->GetNbInstances());
 		}
-		else if (current->isUsable() && !current->HasFourNeigbors())
-			CheckNeigbors(current);
 		it++;
 	}
-	debugChunkHole();
+	//debugChunkHole();
 }
 
 void		generateChunk(Chunk **chunk, std::mutex *mutex, MapGeneration **map)
@@ -180,8 +178,9 @@ void	ChunkHandler::AddChunkAtPos(int x, int y)
 	chunk = new Chunk(glm::vec2(x, y), id);
 	id++;
 	enabledChunks.insert(std::pair<std::string, Chunk*>(GetPosIndex(x, y), chunk));
-	t = new std::thread(generateChunk, &(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
-	t->detach();
+//	t = new std::thread(generateChunk, &(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
+//	t->detach();
+	generateChunk(&(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
 	std::cout << "Chunk called ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
 }
 
@@ -192,7 +191,7 @@ void	ChunkHandler::RemoveFarChunks()
 
 	while (it != disabledChunks.end() && (chunk = (*it).second))
 	{
-		if (glm::distance(chunk->GetPos(), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > 4000.0f)
+		if (glm::distance(chunk->GetPos(), glm::vec2(g_player.GetPos().x, g_player.GetPos().z)) > 3000.0f)
 		{
 			disabledChunks.erase(it);
 			delete(chunk);

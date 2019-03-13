@@ -121,33 +121,6 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 		}
 		x++;
 	}
-	x = 0;
-	while (x < CHUNK_XY)
-	{
-		y = 0;
-		while (y < CHUNK_XY)
-		{
-			z = 0;
-			while(z < CHUNK_Z)
-			{
-				if (chunk[x][y][z] > 0)
-				{
-					if (isCubeVisible(x, y, z))
-					{
-						translations[nb] = x + this->position.x;
-						translations[nb + 2] = y + this->position.y;
-						translations[nb + 1] = z;
-						cubes[nbInstances] = chunk[x][y][z];
-						nbInstances++;
-						nb += 3;
-					}
-				}
-				z++;
-			}
-			y++;
-		}
-		x++;
-	}
 	calcVertices();
 	generated = true;
 }
@@ -206,12 +179,7 @@ void	Chunk::reloadChunk()
 		}
 		x++;
 	}
-	glDeleteBuffers(1, &translationsID);
-	glDeleteBuffers(1, &cubeID);
-	glGenBuffers(1, &translationsID);
-	glGenBuffers(1, &cubeID);
-	setTranslationsO();
-	setCubeO(nbInstances);
+	doOpenGLThings();
 	reloaded = true;
 }
 

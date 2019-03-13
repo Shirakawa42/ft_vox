@@ -15,10 +15,10 @@ class ChunkHandler
 	public:
 		ChunkHandler(bool is_seed, unsigned int seed);
 		~ChunkHandler();
-		void				MapHandler();
-		void				LoadChunks();
-	private:
+		void									MapHandler();
+		void									LoadChunks();
 		std::map<std::string, Chunk*>			enabledChunks;
+	private:
 		std::map<std::string, Chunk*>			disabledChunks;
 		MapGeneration				*mapgen;
 		Chunk						*GenerateChunk(int x, int y);
