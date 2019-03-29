@@ -78,7 +78,7 @@ char		*shaders::load_file(char *filename)
 	while ((r = read(fd, buf, BUFF_SIZE)))
 	{
 		buf[r] = '\0';
-		tmp = strdup(file);
+		tmp = file;
 		file = strjoin(file, buf);
 		free(tmp);
 	}
