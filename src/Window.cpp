@@ -175,6 +175,8 @@ void	Window::loop(bool is_seed, unsigned int seed)
 	while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 	{
 		handleTime();
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			chunkHandler.TryDestroyingBlock();
 		tmp_time = glfwGetTime();
 		chunkHandler.MapHandler();
 		g_player.mouseControl(window);

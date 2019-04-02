@@ -234,3 +234,16 @@ Chunk	*ChunkHandler::GetChunkAtPos(int x, int y)
 		return (*it).second;
 	return NULL;
 }
+
+void	ChunkHandler::TryDestroyingBlock()
+{
+	Chunk	*chunk;
+
+	int x = (int)g_player.GetPos().x - (int)g_player.GetPos().x % CHUNK_XY;
+	int y = (int)g_player.GetPos().z - (int)g_player.GetPos().z % CHUNK_XY;
+	chunk = GetChunkAtPos(x, y);
+	if (chunk)
+	{
+		chunk->DestroyCube(g_player.GetPos().x - x, g_player.GetPos().z - y, g_player.GetPos().y);
+	}
+}

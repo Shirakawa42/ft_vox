@@ -42,6 +42,7 @@ class Chunk
 		Chunk			*front;
 		Chunk			*back;
 		int				GetID();
+		void			DestroyCube(int x, int y, int z);
 	private:
 		int				id;
 		void			reloadChunk();

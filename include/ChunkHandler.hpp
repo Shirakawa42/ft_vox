@@ -18,6 +18,7 @@ class ChunkHandler
 		void									MapHandler();
 		void									LoadChunks();
 		std::map<std::string, Chunk*>			enabledChunks;
+		void									TryDestroyingBlock();
 	private:
 		std::map<std::string, Chunk*>			disabledChunks;
 		MapGeneration				*mapgen;

@@ -274,7 +274,7 @@ bool	Chunk::isCubeVisible(int x, int y, int z)
 	int		nbSide;
 
 	nbSide = 0;
-	if (z == 0 || z == CHUNK_Z-1)
+	if (z == CHUNK_Z-1)
 		return true;
 	if (x == 0 && !left)
 		return true;
@@ -304,7 +304,7 @@ bool	Chunk::isCubeVisible(int x, int y, int z)
 		nbSide++;
 	if (y == CHUNK_XY-1 && back && back->GetCube(x, 0, z) > 0) // front 2
 		nbSide++;
-	if (nbSide == 6)
+	if (nbSide == 6 || (z == 0 && nbSide == 5))
 		return false;
 	return true;
 }
@@ -373,4 +373,13 @@ bool		Chunk::HasFourNeigbors()
 int			Chunk::GetID()
 {
 	return id;
+}
+
+void		Chunk::DestroyCube(int x, int y, int z)
+{
+	if (chunk[x][y][z] != 0 && z > 0 && z < CHUNK_Z && x >= 0 && x < CHUNK_XY && y >= 0 && y < CHUNK_XY)
+	{
+		chunk[x][y][z] = 0;
+		reloadChunk();
+	}
 }
