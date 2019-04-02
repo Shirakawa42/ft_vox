@@ -6,7 +6,7 @@
 #    By: lvasseur <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/02/22 13:30:54 by lvasseur          #+#    #+#              #
-#    Updated: 2019/03/07 15:05:19 by lvasseur         ###   ########.fr        #
+#    Updated: 2019/04/02 16:25:59 by lvasseur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,20 +21,18 @@ INC_PATH = ./include/
 LIB_PATH = ./
 
 GCC_FLGS = #-Wall -Wextra -Werror
-GCC_LIBS = -std=c++11 -lpthread -lglfw3 -framework AppKit -framework OpenGL -framework IOKit -framework CoreVideo -lm -lglew
+GCC_LIBS = -std=c++11 -lpthread -lglfw -framework AppKit -framework OpenGL -framework IOKit -framework CoreVideo -lm -lglew
 SRC_NAME = main.cpp ChunkHandler.cpp Chunk.cpp Player.cpp Window.cpp shaders.cpp Texture.cpp MapGeneration.cpp FrustumCulling.cpp
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
-LIB_NAME = glfw/src
 
 SRC = $(addprefix $(SRC_PATH), $(SRC_NAME))
 OBJ = $(addprefix $(OBJ_PATH), $(OBJ_NAME))
 INC = $(addprefix -I,$(INC_PATH))
-LIB = $(addprefix -L$(LIB_PATH),$(LIB_NAME))
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(GCC_FLGS) $(LIB) $(INC) $(OBJ) $(GCC_LIBS) -o $(NAME)
+	$(CC) $(GCC_FLGS) $(INC) $(OBJ) $(GCC_LIBS) -o $(NAME)
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 	mkdir -p $(OBJ_PATH)

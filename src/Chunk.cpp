@@ -50,7 +50,7 @@ Chunk::~Chunk()
 	glDeleteBuffers(1, &cubeID);
 }
 
-void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
+void	Chunk::generate(MapGeneration **mapgen)
 {
 	int				x;
 	int				y;
@@ -69,7 +69,6 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 		y = 0;
 		while (y < CHUNK_XY)
 		{
-			mutex->lock();
 			biome = (*mapgen)->noise((float)(x + this->position.x) / 350.0f + 0.5f, (float)(y + this->position.y) / 350.0f + 0.5f, 0.0f);
 			if (biome < 0.0f)
 			{
@@ -96,7 +95,6 @@ void	Chunk::generate(MapGeneration **mapgen, std::mutex *mutex)
 			cave = (*mapgen)->noise((float)(x + this->position.x + 1000) / 30.0f + 0.5f, (float)(y + this->position.y + 1001) / 30.0f + 0.5f, 0.0f);
 			height = 1.0f + (*mapgen)->noise((float)(x + this->position.x + 2000) / 30.0f + 0.5f, (float)(y + this->position.y + 2001) / 30.0f + 0.5f, 0.0f);
 			width = 1.0f + (*mapgen)->noise((float)(x + this->position.x + 3000) / 30.0f + 0.5f, (float)(y + this->position.y + 3001) / 30.0f + 0.5f, 0.0f);
-			mutex->unlock();
 			power = (int)(13.0f * p) + 128;
 			z = 0;
 			while (z < power && z < CHUNK_Z)
@@ -373,13 +371,4 @@ bool		Chunk::HasFourNeigbors()
 int			Chunk::GetID()
 {
 	return id;
-}
-
-void		Chunk::DestroyCube(int x, int y, int z)
-{
-	if (chunk[x][y][z] != 0 && z > 0 && z < CHUNK_Z && x >= 0 && x < CHUNK_XY && y >= 0 && y < CHUNK_XY)
-	{
-		chunk[x][y][z] = 0;
-		reloadChunk();
-	}
 }

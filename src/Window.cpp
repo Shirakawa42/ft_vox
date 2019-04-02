@@ -29,7 +29,6 @@ void	Window::handleTime()
 		std::cout << "FPS: " << fps << std::endl;
 		fpstime -= 1.0f;
 		fps = 0;
-		std::cout << g_player.GetPos().x << " " << g_player.GetPos().z << std::endl;
 	}
 }
 
@@ -162,22 +161,11 @@ void	Window::loop(bool is_seed, unsigned int seed)
 
 	glEnable(GL_CULL_FACE); 
 
-	float	tmp_time;
-	float	duration[3];
-	float	total;
-	duration[0] = 0;
-	duration[1] = 0;
-	duration[2] = 0;
-	total = 0;
-
 	create_skybox();
 
 	while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 	{
 		handleTime();
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			chunkHandler.TryDestroyingBlock();
-		tmp_time = glfwGetTime();
 		chunkHandler.MapHandler();
 		g_player.mouseControl(window);
 
@@ -202,15 +190,7 @@ void	Window::loop(bool is_seed, unsigned int seed)
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, water);
 
-		duration[0] += glfwGetTime() - tmp_time;
-		total += glfwGetTime() - tmp_time;
-		tmp_time = glfwGetTime();
-		
 		chunkHandler.LoadChunks();
-
-		duration[1] += glfwGetTime() - tmp_time;
-		total += glfwGetTime() - tmp_time;
-		tmp_time = glfwGetTime();
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
@@ -218,16 +198,6 @@ void	Window::loop(bool is_seed, unsigned int seed)
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		duration[2] += glfwGetTime() - tmp_time;
-		total += glfwGetTime() - tmp_time;
-		if (total > 1.0f)
-		{
-			std::cout << "part1: " << (duration[0] / total)*100 << ", part2: " << (duration[1] / total)*100 << ", part3: " << (duration[2] / total)*100 << std::endl;
-			total -= 1.0f;
-			duration[0] = 0;
-			duration[1] = 0;
-			duration[2] = 0;
-		}
 	}
 	exit(0);
 }

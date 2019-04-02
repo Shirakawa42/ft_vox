@@ -31,7 +31,7 @@ class Chunk
 		bool			isEnabled();
 		void			Enable();
 		void			Disable();
-		void			generate(MapGeneration **map, std::mutex *mutex);
+		void			generate(MapGeneration **map);
 		bool			isGenerated();
 		bool			isUsable();
 		void			doOpenGLThings();
@@ -42,7 +42,6 @@ class Chunk
 		Chunk			*front;
 		Chunk			*back;
 		int				GetID();
-		void			DestroyCube(int x, int y, int z);
 	private:
 		int				id;
 		void			reloadChunk();

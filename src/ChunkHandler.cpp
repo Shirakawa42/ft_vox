@@ -51,36 +51,6 @@ static std::string	GetPosIndex(glm::vec2 pos)
 	return GetPosIndex(pos.x, pos.y);
 }
 
-void		ChunkHandler::debugChunkHole()
-{
-	Chunk *debug;
-	glm::vec3 p;
-
-	p = g_player.GetPos();
-	debug = GetChunkAtPos((int)p.x - (int)p.x % CHUNK_XY, (int)p.z - (int)p.z % CHUNK_XY);
-	if (!debug)
-		std::cout << "rien" << std::endl;
-	else
-	{
-		std::cout << debug->GetPos().x << " " << debug->GetPos().y << std::endl;
-		std::cout << "usable: " << debug->isUsable() << std::endl;
-		std::cout << "right: " << ((debug->right) ? "yes" : "no") << std::endl;
-		std::cout << "left: " << ((debug->left) ? "yes" : "no") << std::endl;
-		std::cout << "front: " << ((debug->front) ? "yes" : "no") << std::endl;
-		std::cout << "back: " << ((debug->back) ? "yes" : "no") << std::endl;
-		std::cout << "enabled: " << debug->isEnabled() << std::endl;
-		std::map<std::string, Chunk*>::iterator it;
-		it = enabledChunks.find(GetPosIndex(debug->GetPos()));
-		if (it != enabledChunks.end())
-			std::cout << "inside enabledChunks" << std::endl;
-		it = disabledChunks.find(GetPosIndex(debug->GetPos()));
-		if (it != disabledChunks.end())
-			std::cout << "inside disabledChunks" << std::endl;
-		std::cout << std::endl;
-		CheckNeigbors(debug);
-	}
-}
-
 void	ChunkHandler::CheckNeigbors(Chunk *chunk)
 {
 	Chunk	*neighbor;
@@ -162,12 +132,11 @@ void	ChunkHandler::LoadChunks()
 		}
 		it++;
 	}
-	//debugChunkHole();
 }
 
-void		generateChunk(Chunk **chunk, std::mutex *mutex, MapGeneration **map)
+void		generateChunk(Chunk **chunk, MapGeneration **map)
 {
-	(*chunk)->generate(map, mutex);
+	(*chunk)->generate(map);
 }
 
 void	ChunkHandler::AddChunkAtPos(int x, int y)
@@ -178,10 +147,7 @@ void	ChunkHandler::AddChunkAtPos(int x, int y)
 	chunk = new Chunk(glm::vec2(x, y), id);
 	id++;
 	enabledChunks.insert(std::pair<std::string, Chunk*>(GetPosIndex(x, y), chunk));
-//	t = new std::thread(generateChunk, &(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
-//	t->detach();
-	generateChunk(&(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mutex, &mapgen);
-	std::cout << "Chunk called ! Nb Loaded Chunks: " << enabledChunks.size() << std::endl;
+	generateChunk(&(*(enabledChunks.find(GetPosIndex(x, y)))).second, &mapgen);
 }
 
 void	ChunkHandler::RemoveFarChunks()
@@ -233,17 +199,4 @@ Chunk	*ChunkHandler::GetChunkAtPos(int x, int y)
 	if (it != disabledChunks.end())
 		return (*it).second;
 	return NULL;
-}
-
-void	ChunkHandler::TryDestroyingBlock()
-{
-	Chunk	*chunk;
-
-	int x = (int)g_player.GetPos().x - (int)g_player.GetPos().x % CHUNK_XY;
-	int y = (int)g_player.GetPos().z - (int)g_player.GetPos().z % CHUNK_XY;
-	chunk = GetChunkAtPos(x, y);
-	if (chunk)
-	{
-		chunk->DestroyCube(g_player.GetPos().x - x, g_player.GetPos().z - y, g_player.GetPos().y);
-	}
 }

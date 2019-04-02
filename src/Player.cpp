@@ -58,10 +58,10 @@ void	Player::mouseControl(GLFWwindow *window)
 	    position.y += g_deltaTime * speed;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	    position.y -= g_deltaTime * speed;
-	if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS && speed <= 60.0f)
-		speed += 5.0f * g_deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS && speed >= 0.25f)
-		speed -= 5.0f * g_deltaTime;
+	if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS && speed < 20.0f)
+		speed = 20.0f;
+	if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS && speed > 1.0f)
+		speed = 1.0f;
 	View = glm::lookAt(position, position+direction, up);
 	frustum->setView(View);
 	frustum->setPlanes();
